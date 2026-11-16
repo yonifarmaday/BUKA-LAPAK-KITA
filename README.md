@@ -1,4 +1,4 @@
-# Warung Sembako Dini — versi Cloudflare (Worker + D1)
+# BUKA LAPAK KITA — Warung Sembako Dini versi Cloudflare (Worker + D1)
 
 Katalog belanja ala Shopee + member poin, untuk satu toko. Semua jalan di **Cloudflare** (tanpa Supabase):
 
@@ -20,23 +20,30 @@ tukar poin jadi potongan harga (1 poin = Rp1, min. belanja Rp100.000), iklan Pop
 
 ## Cara pasang (lewat dashboard Cloudflare + GitHub)
 
-### 1. Upload ke GitHub
-Buat repo baru, upload **isi** folder ini (`public/`, `src/`, `schema.sql`, `seed.sql`, `wrangler.toml`, `README.md`, `.gitignore`).
+### 1. Struktur repo (jangan diubah)
+```
+public/        tampilan web (index.html, d1-client.js, sw.js, gambar, icons/, fonts/)
+src/index.js   Worker API
+schema.sql     tabel database
+seed.sql       data awal (produk, pengaturan, iklan, tarif)
+wrangler.toml  konfigurasi Cloudflare
+```
+Kalau upload lewat GitHub web, upload **per folder** supaya `public/` dan `src/` tidak terlepas.
 
 ### 2. Buat database D1
-1. Cloudflare dashboard → **Storage & Databases → D1 SQL Database → Create** → nama: `dini-db`.
+1. Cloudflare dashboard → **Storage & Databases → D1 SQL Database → Create** → nama: `buka-lapak-kita-db`.
 2. Buka database → tab **Console** → tempel seluruh isi **`schema.sql`** → **Execute**.
 3. Tempel seluruh isi **`seed.sql`** → **Execute**.
 4. Salin **Database ID** (ada di halaman database).
 
 ### 3. Buat KV untuk foto
-**Storage & Databases → KV → Create** → nama: `dini-files` → salin **ID**-nya.
+**Storage & Databases → KV → Create** → nama: `buka-lapak-kita-files` → salin **ID**-nya.
 
 ### 4. Isi ID di `wrangler.toml`
 Ganti `GANTI-DENGAN-DATABASE-ID-D1` dan `GANTI-DENGAN-ID-KV` dengan ID dari langkah 2 & 3, lalu commit ke GitHub.
 
 ### 5. Deploy Worker
-**Workers & Pages → Create → Import a repository** → pilih repo tadi → biarkan *Build command* kosong,
+**Workers & Pages → Create → Import a repository** → pilih repo ini → nama Worker: **`buka-lapak-kita`** (harus sama dengan `name` di `wrangler.toml`) → biarkan *Build command* kosong,
 *Deploy command* `npx wrangler deploy` → **Deploy**. Setiap push ke GitHub akan deploy otomatis.
 
 ### 6. Isi secret
@@ -61,10 +68,10 @@ Menu **Pengaturan**: nama toko, logo, banner, WhatsApp, rekening bank, gambar QR
 ## Cara pasang lewat terminal (alternatif)
 ```bash
 npm i -g wrangler && wrangler login
-wrangler d1 create dini-db                 # salin database_id ke wrangler.toml
-wrangler kv namespace create dini-files    # salin id ke wrangler.toml
-wrangler d1 execute dini-db --remote --file=schema.sql
-wrangler d1 execute dini-db --remote --file=seed.sql
+wrangler d1 create buka-lapak-kita-db                 # salin database_id ke wrangler.toml
+wrangler kv namespace create buka-lapak-kita-files    # salin id ke wrangler.toml
+wrangler d1 execute buka-lapak-kita-db --remote --file=schema.sql
+wrangler d1 execute buka-lapak-kita-db --remote --file=seed.sql
 wrangler secret put JWT_SECRET
 wrangler secret put RAJAONGKIR_KEY         # opsional
 wrangler deploy
@@ -76,6 +83,6 @@ wrangler deploy
 - **Batas file upload:** 24 MB per file (foto otomatis dikompres; video iklan sebaiknya < 10 MB).
 - **Notifikasi pesanan baru** di halaman admin diperiksa tiap 15 detik.
 - **Kuota gratis Cloudflare** (per hari): Worker 100.000 request, D1 5 juta baca / 100.000 tulis, KV 100.000 baca / 1.000 tulis — cukup untuk toko kecil–menengah.
-- **Backup data:** D1 → database → **Time Travel** (bisa kembali ke titik waktu 30 hari terakhir), atau `wrangler d1 export dini-db --remote --output=backup.sql`.
+- **Backup data:** D1 → database → **Time Travel** (bisa kembali ke titik waktu 30 hari terakhir), atau `wrangler d1 export buka-lapak-kita-db --remote --output=backup.sql`.
 
 Develop Program (MIZAN&NORMAN)

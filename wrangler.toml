@@ -1,6 +1,8 @@
-# Warung Sembako Dini — Cloudflare Worker + D1 + KV
-# Ganti database_id dan id KV di bawah dengan milik akun Cloudflare Anda (lihat README.md).
-name = "warung-dini"
+# BUKA LAPAK KITA (Warung Sembako Dini) — Cloudflare Worker + D1 + KV
+# ⚠ SEBELUM DEPLOY: ganti 2 baris "GANTI-DENGAN-..." di bawah dengan ID dari akun Cloudflare Anda.
+#   Tanpa ini deploy PASTI gagal. Langkah lengkap: README.md bagian "Cara pasang".
+# Nama di bawah harus sama dengan nama Worker yang dibuat di dashboard Cloudflare.
+name = "buka-lapak-kita"
 main = "src/index.js"
 compatibility_date = "2025-09-01"
 
@@ -15,7 +17,7 @@ run_worker_first = ["/api/*", "/files/*"]
 # database utama
 [[d1_databases]]
 binding = "DB"
-database_name = "dini-db"
+database_name = "buka-lapak-kita-db"
 database_id = "GANTI-DENGAN-DATABASE-ID-D1"
 
 # penyimpanan foto produk / iklan / logo / QRIS
