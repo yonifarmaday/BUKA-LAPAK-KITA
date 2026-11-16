@@ -1,0 +1,1458 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Warung Sembako Dini</title>
+<meta name="description" content="Belanja sembako & kebutuhan harian, kumpulkan poin member dan tukar dengan hadiah.">
+<meta name="theme-color" content="#ee4d2d">
+<meta name="color-scheme" content="only light">
+<meta name="supported-color-schemes" content="light">
+<link rel="manifest" href="/manifest.json">
+<link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32.png">
+<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Warung Dini">
+<script src="d1-client.js"></script>
+<style>
+:root{color-scheme:only light;--pri:#ee4d2d;--pri-d:#d73211;--pri-l:#fff4f1;--bg:#f5f5f5;--card:#fff;--tx:#222;--mut:#757575;--bd:#e8e8e8;--ok:#26aa99;--warn:#f69113;--err:#e02c2c;--r:4px}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--tx);font-size:14px}
+a{color:var(--pri);text-decoration:none}
+/* ---- header oranye ala marketplace ---- */
+header{position:sticky;top:0;z-index:20;background:linear-gradient(-180deg,#f53d2d,#f63);box-shadow:0 1px 4px #0002}
+.bar{max-width:1200px;margin:auto;display:flex;align-items:center;gap:14px;padding:10px 16px}
+.logo{font-weight:800;font-size:20px;color:#fff;white-space:nowrap;letter-spacing:.3px}
+.srch{flex:1;display:flex;background:#fff;border-radius:3px;padding:3px;min-width:0}
+.srch input{border:0;padding:8px 10px;flex:1;min-width:0;outline:none;border-radius:2px}
+.srch button{border:0;background:var(--pri);color:#fff;border-radius:2px;padding:0 16px;cursor:pointer}
+.hcart{position:relative;color:#fff;display:flex;align-items:center;padding:4px}
+.hcart svg{width:28px;height:28px}
+.cbadge{position:absolute;top:-4px;right:-8px;background:#fff;color:var(--pri);border:1px solid var(--pri);border-radius:99px;font-size:11px;font-weight:700;padding:0 6px;line-height:16px}
+.nav{display:flex;gap:2px;flex-wrap:wrap;align-items:center}
+.nav a{padding:6px 10px;border-radius:3px;color:#fff;font-size:13.5px;opacity:.95}
+.nav a.on,.nav a:hover{background:#ffffff2e;opacity:1}
+.badge{background:#fff;color:var(--pri);border-radius:99px;padding:0 6px;font-size:11px;margin-left:3px;font-weight:700}
+body.is-admin .srch,body.is-admin .hcart{display:none}
+body.is-admin .bar{justify-content:space-between}
+/* ---- bottom nav (HP) ---- */
+.bnav{display:none;position:fixed;left:0;right:0;bottom:0;z-index:30;background:#fff;border-top:1px solid var(--bd);padding:4px 0 calc(4px + env(safe-area-inset-bottom))}
+.bnav a{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:10.5px;color:#555;position:relative}
+.bnav a svg{width:23px;height:23px}
+.bnav a.on{color:var(--pri)}
+.bnav .cbadge{top:-3px;right:calc(50% - 22px);background:var(--pri);color:#fff;border-color:#fff}
+main{max-width:1200px;margin:auto;padding:12px 16px}
+h1{font-size:19px;margin:4px 0 12px}h2{font-size:16px;margin:16px 0 8px}
+.card{background:var(--card);border-radius:var(--r);padding:14px;box-shadow:0 1px 2px #0000000d}
+/* ---- produk grid ---- */
+.grid{display:grid;gap:10px;grid-template-columns:repeat(auto-fill,minmax(180px,1fr))}
+.prod{background:#fff;border-radius:var(--r);overflow:hidden;display:flex;flex-direction:column;cursor:pointer;box-shadow:0 1px 2px #0000000f;transition:transform .1s,box-shadow .1s;border:1px solid transparent}
+.prod:hover{transform:translateY(-1px);box-shadow:0 2px 8px #0002;border-color:var(--pri)}
+.prod .img{aspect-ratio:1;background:#fafafa center/cover no-repeat;display:flex;align-items:center;justify-content:center;color:#bbb;font-size:40px;position:relative}
+.prod .tag{position:absolute;top:0;right:0;background:#ffd424;color:var(--pri);font-size:11px;font-weight:700;padding:2px 5px}
+.prod .habis{position:absolute;inset:0;background:#0006;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px}
+.prod .b{padding:8px;display:flex;flex-direction:column;gap:6px;flex:1}
+.prod .n{font-size:13px;line-height:1.35;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:35px}
+.prod .p{color:var(--pri);font-size:16px;font-weight:500}.prod .p small{font-size:11px;margin-right:1px}
+.prod .tiers{display:flex;flex-wrap:wrap;gap:4px}.prod .tiers span{font-size:10.5px;border:1px solid var(--pri);color:var(--pri);border-radius:2px;padding:0 4px;line-height:16px}
+.units{display:flex;gap:8px;flex-wrap:wrap}.unit{border:1px solid var(--bd);background:#fff;border-radius:4px;padding:8px 12px;cursor:pointer;display:flex;flex-direction:column;align-items:flex-start;min-width:96px;font:inherit;text-align:left}
+.unit b{font-size:13px}.unit span{color:var(--pri);font-weight:600}.unit small{font-size:11px;color:var(--mut)}.unit.on{border-color:var(--pri);background:var(--pri-l);box-shadow:inset 0 0 0 1px var(--pri)}.unit:disabled{opacity:.4;cursor:not-allowed}
+.sat{font-size:10.5px;background:var(--pri-l);color:var(--pri);border:1px solid var(--pri);border-radius:2px;padding:0 4px;font-weight:600;vertical-align:middle}
+.prod .meta{display:flex;justify-content:space-between;font-size:11px;color:var(--mut);margin-top:auto}
+.banner{border-radius:var(--r);background:linear-gradient(120deg,#ee4d2d 0%,#ff7337 55%,#ffb03b 100%);color:#fff;padding:20px 22px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;gap:10px;overflow:hidden}
+.banner b{font-size:21px;display:block}.banner span{opacity:.95;font-size:13px}
+.banner .pt{background:#fff;color:var(--pri);border-radius:6px;padding:8px 12px;text-align:center;font-weight:700;white-space:nowrap}
+.banner .pt small{display:block;font-weight:400;color:var(--mut);font-size:11px}
+.banner .lg{width:96px;height:96px;border-radius:12px;background:#fff center/cover no-repeat;flex:none;border:3px solid #fff;box-shadow:0 2px 8px #0003}
+.banner .tx{flex:1;min-width:0}
+@font-face{font-family:'PoppinsB';src:url('/fonts/poppins-bold.woff') format('woff');font-weight:700;font-display:swap}
+.banner .tx .nm1{display:block;font:700 13px/1.15 PoppinsB,system-ui,sans-serif;letter-spacing:2px;opacity:.95;text-shadow:0 1px 2px #0005}
+.banner .tx .nm2{display:block;font:700 40px/1 PoppinsB,system-ui,sans-serif;letter-spacing:1px;text-shadow:0 2px 4px #0006;margin:2px 0 4px;overflow-wrap:anywhere}
+.banner .dm{display:flex;flex-direction:column;align-items:center;gap:3px;flex:none;padding:10px 14px 8px;border-radius:14px;
+  background:linear-gradient(145deg,#ffffff4d 0%,#ee4d2d59 45%,#c2441f73 100%);-webkit-backdrop-filter:blur(10px) saturate(140%);backdrop-filter:blur(10px) saturate(140%);
+  border:1px solid #ffffff8c;box-shadow:inset 0 1px 0 #ffffffb3,inset 0 -1px 0 #ffffff26,0 6px 18px #0000004d,0 2px 4px #00000033;transition:transform .15s,box-shadow .15s}
+.banner .dm img{height:58px;display:block;filter:drop-shadow(0 1px 2px #0006)}
+.banner .dm small{color:#fff;font-size:11px;font-weight:700;text-shadow:0 1px 2px #0007}
+.banner .dm{animation:dmApung 2.4s ease-in-out infinite;position:relative;overflow:hidden}
+.banner .dm::after{content:"";position:absolute;top:0;left:-60%;width:40%;height:100%;background:linear-gradient(100deg,#fff0,#fff6,#fff0);transform:skewX(-20deg);animation:dmKilap 3.6s ease-in-out infinite}
+.banner .dm:hover{animation-play-state:paused;box-shadow:inset 0 1px 0 #ffffffcc,0 10px 24px #00000059}
+@keyframes dmApung{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+@keyframes dmKilap{0%,60%{left:-60%}100%{left:130%}}
+@media (prefers-reduced-motion:reduce){.banner .dm,.banner .dm::after{animation:none}}
+.banner.bg{background:linear-gradient(90deg,#ee4d2d 0%,#ee4d2df2 28%,#ff7337b8 52%,#ff733700 78%),var(--bimg) right 12% center/cover no-repeat;min-height:150px;padding:20px 24px}
+.banner.bg b{font-size:24px;text-shadow:0 1px 3px #0005}.banner.bg span{text-shadow:0 1px 2px #0004;display:block;max-width:420px}
+.cats{display:flex;gap:8px;overflow-x:auto;padding:12px;background:#fff;border-radius:var(--r);margin-bottom:10px;scrollbar-width:none}
+.cats::-webkit-scrollbar{display:none}
+.sect{background:#fff;padding:12px 14px;color:var(--pri);font-weight:600;border-bottom:3px solid var(--pri);border-radius:var(--r) var(--r) 0 0;margin-bottom:8px;text-transform:uppercase;font-size:14px}
+.mut{color:var(--mut);font-size:12.5px}
+/* ---- tombol & form ---- */
+.btn{border:0;border-radius:2px;padding:9px 14px;font-weight:500;cursor:pointer;background:var(--pri);color:#fff;font-size:14px}
+.btn:hover{background:var(--pri-d)}.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn.o{background:var(--pri-l);color:var(--pri);border:1px solid var(--pri)}
+.btn.g{background:#fff;color:var(--tx);border:1px solid var(--bd)}.btn.g:hover{background:#f8f8f8}
+.btn.ok{background:var(--ok)}.btn.err{background:var(--err)}
+.btn.wa{background:#25d366}.btn.sm{padding:5px 10px;font-size:12.5px}.btn.blk{width:100%}
+input,select,textarea{width:100%;padding:9px 11px;border:1px solid #ddd;border-radius:2px;font:inherit;background:#fff}
+input:focus,select:focus,textarea:focus{outline:none;border-color:#999}
+label{display:block;font-size:13px;font-weight:600;margin:10px 0 4px}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.row>*{flex:1}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}.toolbar>input{flex:1;min-width:180px}.toolbar>select{width:auto}
+table{width:100%;border-collapse:collapse;background:#fff}
+th,td{padding:9px 10px;border-bottom:1px solid var(--bd);text-align:left;vertical-align:top;font-size:13.5px}
+th{background:#fafafa;font-size:12.5px;color:var(--mut);font-weight:500}
+.tw{overflow-x:auto;border-radius:var(--r);box-shadow:0 1px 2px #0000000d}
+.st{display:inline-block;padding:2px 8px;border-radius:2px;font-size:11.5px;font-weight:600}
+.st.menunggu{background:#fff4e5;color:#c26b00}.st.dikonfirmasi{background:#e8f1ff;color:#1e5bd8}
+.st.dikirim{background:#f1eaff;color:#6b36d1}.st.selesai,.st.disetujui{background:#e6f7f4;color:#13836f}
+.st.batal,.st.ditolak{background:#fdecec;color:#c62020}
+.stats{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));margin-bottom:14px}
+.stat{background:#fff;border-radius:var(--r);padding:14px;color:var(--tx);box-shadow:0 1px 2px #0000000d}
+.stat b{display:block;font-size:22px;margin-top:4px}
+.poinbox{background:linear-gradient(120deg,#ee4d2d,#ff7337 60%,#ffb03b);color:#fff;border-radius:8px;padding:20px;margin-bottom:14px}
+.poinbox b{font-size:34px;display:block}
+.auth{max-width:420px;margin:24px auto}
+.qty{display:flex;align-items:center;gap:0;border:1px solid #ddd;border-radius:2px;width:max-content}
+.qty .btn{border:0;border-radius:0;padding:4px 10px}.qty span{min-width:34px;text-align:center;border-left:1px solid #ddd;border-right:1px solid #ddd;padding:4px 0}
+.two{display:grid;gap:12px;grid-template-columns:1.4fr 1fr}
+.modal{position:fixed;inset:0;background:#0008;display:flex;align-items:center;justify-content:center;z-index:70;padding:16px}
+.modal>.card{width:100%;max-width:520px;max-height:90vh;overflow:auto}
+.toast{position:fixed;top:45%;left:50%;transform:translate(-50%,-50%);background:#000c;color:#fff;padding:14px 20px;border-radius:4px;z-index:99;font-size:14px;text-align:center;max-width:80vw}
+.toast.err{background:#c62020ee}
+.sugg{border:1px solid var(--bd);border-radius:2px;margin-top:4px;max-height:220px;overflow:auto;background:#fff}
+.sugg div{padding:8px 10px;cursor:pointer;font-size:13px;border-bottom:1px solid var(--bd)}.sugg div:hover{background:var(--pri-l)}
+.svc{border:1px solid var(--bd);border-radius:2px;padding:9px 11px;margin-top:6px;display:flex;gap:8px;align-items:center;cursor:pointer}
+.svc.kurir{border-color:#333;background:#f2f2f2}
+.svc:has(input:checked){border-color:var(--pri);background:var(--pri-l)}
+.svc input{width:auto}
+.sum div{display:flex;justify-content:space-between;padding:4px 0}.sum .tot{font-weight:700;font-size:17px;border-top:1px solid var(--bd);padding-top:8px;margin-top:4px;color:var(--pri)}
+footer{text-align:center;color:var(--mut);font-size:12px;padding:24px 10px 40px}
+.chip{display:inline-block;padding:6px 14px;border-radius:2px;border:1px solid var(--bd);background:#fff;cursor:pointer;font-size:13px;white-space:nowrap;color:var(--tx)}
+.chip.on{background:var(--pri-l);color:var(--pri);border-color:var(--pri)}
+.empty{text-align:center;padding:40px;color:var(--mut)}
+/* ---- detail produk (sheet) ---- */
+.pd{position:fixed;inset:0;z-index:60;background:var(--bg);overflow:auto;padding-bottom:70px}
+.pd .top{position:sticky;top:0;display:flex;justify-content:space-between;padding:10px;z-index:2;pointer-events:none}
+.pd .top button{pointer-events:auto;width:36px;height:36px;border-radius:50%;border:0;background:#0006;color:#fff;font-size:18px;cursor:pointer}
+.pd .wrap{max-width:900px;margin:-56px auto 0;background:#fff}
+.pd .pimg{aspect-ratio:1;max-height:520px;width:100%;background:#fafafa center/contain no-repeat;display:flex;align-items:center;justify-content:center;font-size:80px;color:#ccc}
+.pd .inf{padding:14px 16px;border-bottom:8px solid var(--bg)}
+.pd .pr{color:var(--pri);font-size:24px;font-weight:500}
+.pd .nm{font-size:16px;margin:6px 0;line-height:1.4}
+.pd .kv{display:flex;padding:10px 16px;font-size:13px;border-bottom:1px solid var(--bd)}.pd .kv span:first-child{width:110px;color:var(--mut)}
+.pd .ds{padding:14px 16px;white-space:pre-wrap;line-height:1.6;font-size:13.5px}
+.pd .act{position:fixed;left:0;right:0;bottom:0;display:flex;background:#fff;border-top:1px solid var(--bd);height:54px;z-index:3;padding-bottom:env(safe-area-inset-bottom)}
+.pd .act>*{border:0;cursor:pointer;font-size:13px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px}
+.pd .act .ch{width:84px;background:#fff;color:var(--ok);font-size:11px}
+.pd .act .ad{flex:1;background:#26aa99;color:#fff}
+.pd .act .by{flex:1;background:var(--pri);color:#fff;font-size:15px}
+.pd .act button:disabled{opacity:.5}
+/* ---- iklan popup ---- */
+.popik{position:fixed;inset:0;z-index:80;background:#000a;display:flex;align-items:center;justify-content:center;padding:24px;animation:pfade .2s}
+.popik .box{position:relative;max-width:min(340px,80vw);animation:pzoom .25s}
+.popik img{display:block;width:100%;max-height:68vh;object-fit:contain;border-radius:10px}
+.popik video.md{display:block;width:100%;max-height:68vh;object-fit:contain;border-radius:10px;background:#000}
+@media(max-width:600px){.popik .box{max-width:min(270px,72vw)}.popik img,.popik video.md{max-height:58vh}.popik .cta{font-size:14px;padding:9px 22px}}
+.popik .snd{position:absolute;top:10px;left:10px;width:34px;height:34px;border-radius:50%;border:0;background:#0008;color:#fff;cursor:pointer;z-index:2}
+.baris .it video{width:100%;height:100%;object-fit:cover;display:block;pointer-events:none}
+.popik .x{position:absolute;top:-14px;right:-14px;width:36px;height:36px;border-radius:50%;border:2px solid #fff;background:#0009;color:#fff;font-size:16px;cursor:pointer;z-index:2}
+.popik .cta{display:block;margin:12px auto 0;border:0;border-radius:99px;background:linear-gradient(#ffd54a,#ffb300);color:#7a2e00;font-weight:800;font-size:16px;padding:11px 28px;cursor:pointer;box-shadow:0 3px 0 #c77a00}
+.popik .dots{display:flex;gap:5px;justify-content:center;margin-top:10px}.popik .dots span{width:7px;height:7px;border-radius:50%;background:#fff6}.popik .dots span.on{background:#fff}
+.baris{background:#fff;border-radius:var(--r);padding:10px 12px 12px;margin-bottom:10px;position:relative}
+.baris .hd{font-size:12px;font-weight:600;color:var(--warn);margin-bottom:8px;text-transform:uppercase;letter-spacing:.3px}
+.baris .trk{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-behavior:smooth;scrollbar-width:none}
+.baris .trk::-webkit-scrollbar{display:none}
+.baris .it{flex:0 0 calc((100% - 20px)/3);aspect-ratio:16/7;scroll-snap-align:start;border-radius:6px;overflow:hidden;background:#f3f3f3 center/cover no-repeat;cursor:pointer;position:relative}
+.baris .it.ph{border:2px dashed #f7a35c;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#e07020;font-weight:700;text-align:center;font-size:14px;gap:4px;background:#fff8f2}
+.baris .it.ph small{font-weight:400;color:var(--mut);font-size:12px}
+.baris .nv{position:absolute;top:50%;width:32px;height:32px;border-radius:50%;border:0;background:#fffe;box-shadow:0 1px 4px #0003;cursor:pointer;font-size:18px;color:#555;z-index:2}
+.baris .nv.l{left:4px}.baris .nv.r{right:4px}
+@media(max-width:800px){.baris .it{flex-basis:86%}.baris .nv{display:none}}
+@keyframes pfade{from{opacity:0}}@keyframes pzoom{from{transform:scale(.85);opacity:0}}
+@media(max-width:800px){
+  .banner .lg{width:70px;height:70px}
+  .banner .tx .nm1{font-size:10.5px;letter-spacing:1.5px}.banner .tx .nm2{font-size:30px}
+  .banner .dm{padding:7px 9px 6px;border-radius:11px}.banner .dm img{height:36px}.banner .dm small{font-size:9px}
+  .banner.bg{min-height:130px;padding:14px 16px;background:linear-gradient(90deg,#ee4d2df5 0%,#ee4d2de6 45%,#ff733780 75%,#ff733726 100%),var(--bimg) right 30% center/cover no-repeat}.banner.bg b{font-size:16px}.banner.bg span{font-size:12px;max-width:none}.banner.bg .pt{padding:6px 9px;font-size:13px}
+  .two{grid-template-columns:1fr}
+  .grid{grid-template-columns:repeat(2,1fr);gap:6px}
+  main{padding:8px 8px 76px}
+  .bar{padding:8px 10px;gap:10px}
+  .logo{font-size:16px}
+  body:not(.is-admin) .nav{display:none}
+  body:not(.is-admin) .bnav{display:flex}
+  body.is-admin .bar{flex-wrap:wrap}
+  body.is-admin .nav a{padding:5px 7px;font-size:12.5px}
+  .banner{padding:14px 16px}.banner b{font-size:17px}
+  .srch button{display:none}
+  footer{padding-bottom:80px}
+}
+</style>
+</head>
+<body>
+<header><div class="bar"><a class="logo" href="#/katalog" id="logo">Toko</a>
+  <form class="srch" onsubmit="cariHeader();return false"><input id="hq" placeholder="Cari produk di toko" autocomplete="off"><button aria-label="Cari"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg></button></form>
+  <a class="hcart" href="#/keranjang" aria-label="Keranjang"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 4h2l2.4 11h11l2-8H6.3"/><circle cx="9" cy="19.5" r="1.4"/><circle cx="17" cy="19.5" r="1.4"/></svg><span id="hcn" class="cbadge" style="display:none"></span></a>
+  <nav class="nav" id="nav"></nav></div></header>
+<nav class="bnav" id="bnav"></nav>
+<main id="app"><div class="empty">Memuat…</div></main>
+<footer>Develop Program (MIZAN&amp;NORMAN)</footer>
+<div id="modalRoot"></div>
+
+<script>
+/* ================= KONFIGURASI ================= */
+// Backend: Cloudflare Worker + D1 di domain yang sama (/api/*). Tidak perlu URL / key apa pun di sini.
+// Kategori produk tetap (urutan tampil di katalog):
+const KATEGORI = ['Rokok','Sembako','Kebutuhan Rumah Tangga','Minuman','Makanan'];
+/* =============================================== */
+
+// (sisa dukungan link reset email lama — tidak dipakai di versi D1)
+const MODE_RESET = /type=recovery/.test(location.hash + location.search);
+const ERR_LINK = (location.hash.match(/error_description=([^&]+)/) || [])[1];
+const sb = supabase.createClient();
+const S = { session:null, profile:null, settings:{}, cart: JSON.parse(localStorage.getItem('cart')||'[]'), rt:null };
+const $ = s => document.querySelector(s);
+const app = $('#app');
+const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const rp = n => 'Rp' + Number(n||0).toLocaleString('id-ID');
+const tgl = d => d ? new Date(d).toLocaleString('id-ID',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}) : '-';
+const isAdmin = () => S.profile?.role === 'admin';
+function toast(msg, err){ const t=document.createElement('div'); t.className='toast'+(err?' err':''); t.textContent=msg; document.body.appendChild(t); setTimeout(()=>t.remove(), 3200); }
+function fail(e){ console.error(e); toast(e?.message || String(e), true); }
+function saveCart(){ localStorage.setItem('cart', JSON.stringify(S.cart)); renderNav(); }
+function modal(html){ $('#modalRoot').innerHTML = `<div class="modal" onclick="if(event.target===this)closeModal()"><div class="card">${html}</div></div>`; }
+function closeModal(){ $('#modalRoot').innerHTML=''; }
+const ok = r => { if (r.error) throw r.error; return r.data; };
+
+/* ---------- BERAT J&T: toleransi 0,3 kg, min 1 kg ---------- */
+const kgJnt = g => Math.max(1, Math.ceil(g/1000 - 0.3));
+
+/* ================= INIT ================= */
+async function loadSettings(){
+  const d = ok(await sb.from('settings').select('*'));
+  S.settings = Object.fromEntries(d.map(x=>[x.key,x.value]));
+  $('#logo').textContent = S.settings.nama_toko || 'Toko';
+  document.title = S.settings.nama_toko || 'Toko';
+}
+async function loadProfile(){
+  S.profile = null;
+  if (!S.session) return;
+  const { data } = await sb.from('profiles').select('*').eq('id', S.session.user.id).maybeSingle();
+  S.profile = data;
+}
+async function init(){
+  try { await loadSettings(); } catch(e){ app.innerHTML = `<div class="card">Gagal konek ke server. Cek binding D1 (DB) & secret JWT_SECRET di Cloudflare.<br><span class="mut">${esc(e.message)}</span></div>`; return; }
+  const { data:{ session } } = await sb.auth.getSession();
+  S.session = session; await loadProfile();
+  // bersihkan token dari alamat (#access_token=… / #error=…) supaya router normal
+  if (/^#(access_token|error|type)=/.test(location.hash) || /[?&]code=/.test(location.search)) history.replaceState(null, '', location.pathname + '#/katalog');
+  sb.auth.onAuthStateChange(async (ev, s) => { S.session = s; await loadProfile(); setupRealtime(); route(); if (ev === 'PASSWORD_RECOVERY') formPasswordBaru(true); });
+  setupRealtime();
+  window.addEventListener('hashchange', route);
+  await route();
+  if (ERR_LINK) toast('Link reset tidak valid / kedaluwarsa. Minta link baru atau hubungi admin.', true);
+  if (MODE_RESET && S.session) formPasswordBaru(true);
+  else if (S.profile?.wajib_ganti_pw) formPasswordBaru(false);
+  else tampilkanPopup();
+}
+
+/* ================= NAV & ROUTER ================= */
+const IC = {
+  home:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>',
+  cart:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 4h2l2.4 11h11l2-8H6.3"/><circle cx="9" cy="19.5" r="1.4"/><circle cx="17" cy="19.5" r="1.4"/></svg>',
+  box:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 8 12 3 3 8v8l9 5 9-5z"/><path d="m3 8 9 5 9-5M12 13v8"/></svg>',
+  coin:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M14.5 9.5c-.5-.8-1.4-1.2-2.5-1.2-1.5 0-2.5.8-2.5 1.9 0 2.6 5.2 1.3 5.2 3.9 0 1.1-1.1 1.9-2.7 1.9-1.1 0-2.1-.5-2.6-1.3M12 6.5v1.8M12 15.7v1.8"/></svg>',
+  user:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.2-4 4.3-6 8-6s6.8 2 8 6"/></svg>',
+};
+function renderNav(){
+  const h = location.hash || '#/katalog';
+  document.body.classList.toggle('is-admin', isAdmin());
+  const L = (href, txt) => `<a href="${href}" class="${h.startsWith(href)?'on':''}">${txt}</a>`;
+  const n = S.cart.reduce((a,b)=>a+b.qty,0);
+  const hc = $('#hcn'); hc.textContent = n; hc.style.display = n ? '' : 'none';
+  let html = '';
+  if (!S.session) html = L('#/login','Masuk') + L('#/daftar','Daftar');
+  else if (isAdmin()) html = L('#/admin/dashboard','Dashboard') + L('#/admin/pesanan','Pesanan') + L('#/admin/produk','Produk') + L('#/admin/member','Member & Poin') + L('#/admin/hadiah','Hadiah') + L('#/admin/penukaran','Penukaran') + L('#/admin/iklan','Iklan') + L('#/admin/pengaturan','Pengaturan') + L('#/katalog','Lihat Toko') + `<a href="#" onclick="logout();return false">Keluar</a>`;
+  else html = L('#/pesanan','Pesanan Saya') + L('#/poin',`Poin <span class="badge">${S.profile?.poin??0}</span>`) + L('#/profil',esc(S.profile?.nama||'Profil')) + `<a href="#" onclick="logout();return false">Keluar</a>`;
+  $('#nav').innerHTML = html;
+  const B = (href, ic, txt, extra='') => `<a href="${href}" class="${(href==='#/katalog' ? (h==='#/katalog'||h==='#/'||h==='') : h.startsWith(href))?'on':''}">${ic}${extra}<span>${txt}</span></a>`;
+  // belum login: hanya tombol Masuk; sudah login: menu lengkap
+  $('#bnav').innerHTML = !S.session ? B('#/login', IC.user, 'Masuk')
+    : B('#/katalog', IC.home, 'Beranda') + B('#/keranjang', IC.cart, 'Keranjang', n?`<span class="cbadge">${n}</span>`:'')
+    + B('#/pesanan', IC.box, 'Pesanan') + B('#/poin', IC.coin, 'Poin') + B('#/profil', IC.user, 'Saya');
+}
+function cariHeader(){
+  KAT.q = $('#hq').value.trim(); KAT.kat = 'Semua';
+  if (!(location.hash||'#/katalog').startsWith('#/katalog')) location.hash = '#/katalog'; else drawKatalog();
+}
+async function logout(){ await sb.auth.signOut(); location.hash = '#/katalog'; }
+
+const routes = {
+  '#/katalog': viewKatalog, '#/login': viewLogin, '#/daftar': viewDaftar,
+  '#/keranjang': viewKeranjang, '#/checkout': viewCheckout, '#/pesanan': viewPesanan,
+  '#/poin': viewPoin, '#/profil': viewProfil,
+  '#/admin/dashboard': viewAdminDash, '#/admin/pesanan': viewAdminPesanan, '#/admin/produk': viewAdminProduk,
+  '#/admin/member': viewAdminMember, '#/admin/hadiah': viewAdminHadiah, '#/admin/penukaran': viewAdminPenukaran,
+  '#/admin/pengaturan': viewAdminPengaturan, '#/admin/iklan': viewAdminIklan,
+};
+async function route(){
+  const h = (location.hash || '#/katalog').split('?')[0];
+  if (h.startsWith('#/admin') && !isAdmin()) { location.hash = S.session ? '#/katalog' : '#/login'; return; }
+  if (['#/keranjang','#/checkout','#/pesanan','#/poin','#/profil'].includes(h) && !S.session) { if (h === '#/keranjang') toast('Silakan masuk dulu untuk membuka keranjang'); location.hash = '#/login'; return; }
+  renderNav();
+  const fn = routes[h] || viewKatalog;
+  app.innerHTML = '<div class="empty">Memuat…</div>';
+  try { await fn(); } catch(e){ fail(e); app.innerHTML = `<div class="card">Terjadi kesalahan: ${esc(e.message)}</div>`; }
+}
+
+/* ================= KATALOG ================= */
+let KAT = { q:'', kat:'Semua', list:[] };
+async function viewKatalog(){
+  const [pr, ik] = await Promise.all([sb.from('products').select('*').eq('aktif', true).order('nama'), sb.from('popups').select('*').eq('aktif', true).eq('posisi','baris').order('urutan')]);
+  KAT.list = ok(pr); const t = hariIni();
+  KAT.ads = (ik.data||[]).filter(p => (!p.mulai || p.mulai <= t) && (!p.selesai || p.selesai >= t));
+  drawKatalog();
+}
+// nama toko di banner: kata terakhir besar (brand), sisanya kecil di atas — mis. "WARUNG SEMBAKO" + "DINI"
+function judulToko(){
+  const w = String(S.settings.nama_toko||'Toko').trim().split(/\s+/);
+  const atas = w.length > 1 ? w.slice(0,-1).join(' ') : '';
+  return `${atas?`<span class="nm1">${esc(atas)}</span>`:''}<span class="nm2">${esc(w[w.length-1])}</span>`;
+}
+function drawKatalog(){
+  const kats = ['Semua', ...KATEGORI, ...new Set(KAT.list.map(p=>p.kategori).filter(k=>k && !KATEGORI.includes(k)))];
+  const f = KAT.list.filter(p => (KAT.kat==='Semua'||p.kategori===KAT.kat) && p.nama.toLowerCase().includes(KAT.q.toLowerCase()));
+  if ($('#hq').value !== KAT.q) $('#hq').value = KAT.q;
+  const poin = S.profile && !isAdmin() ? `<div class="pt">${(S.profile.poin||0).toLocaleString('id-ID')}<small>poin saya</small></div>` : (!S.session ? `<a class="dm" href="#/daftar" title="Daftar member gratis"><img src="daftar-member.png" alt="Daftar Member"><small>gratis · kumpulkan poin</small></a>` : '');
+  app.innerHTML = `
+    ${KAT.q ? '' : `<div class="banner bg" style="--bimg:url('${esc(S.settings.banner_url||'banner-bg.jpg')}');padding-left:14px"><div class="lg" style="background-image:url('${esc(S.settings.logo_url||'logo.jpg')}')"></div><div class="tx">${judulToko()}<span>${esc(S.settings.slogan||'Lengkap, murah, ramah.')}</span></div>${poin}</div>`}
+    <div class="cats">${kats.map(k=>`<span class="chip ${k===KAT.kat?'on':''}" onclick="KAT.kat='${esc(k).replace(/'/g,"\\'")}';drawKatalog()">${esc(k)}</span>`).join('')}</div>
+    ${KAT.q ? '' : barisHtml()}
+    <div class="sect">${KAT.q ? `Hasil pencarian "${esc(KAT.q)}" <a href="#" style="float:right;font-size:12px;text-transform:none" onclick="KAT.q='';drawKatalog();return false">hapus ✕</a>` : 'Rekomendasi'}</div>
+    ${f.length ? `<div class="grid">${f.map(cardProduk).join('')}</div>` : `<div class="empty">${KAT.list.length?'Produk tidak ditemukan':'Belum ada produk.'}</div>`}`;
+  jalankanBaris();
+}
+function cardProduk(p){
+  const img = p.foto_url ? `style="background-image:url('${esc(p.foto_url)}')"` : '';
+  return `<div class="prod" onclick="detailProduk(${p.id})">
+    <div class="img" ${img}>${p.foto_url?'':'📦'}${p.stok<1?'<div class="habis">HABIS</div>':p.stok<=5?`<span class="tag">Sisa ${p.stok}</span>`:''}</div>
+    <div class="b"><div class="n">${esc(p.nama)}</div>
+      <div class="p"><small>Rp</small>${Number(p.harga).toLocaleString('id-ID')}<small style="color:var(--mut);margin-left:2px">/pack</small></div>
+      ${satuanList(p).length>1 ? `<div class="tiers">${satuanList(p).slice(1).map(u=>`<span>${u.label} ${rp(u.harga)}</span>`).join('')}</div>` : ''}
+      <div class="meta"><span>${esc(p.kategori||'')}</span><span>Stok ${p.stok}</span></div>
+    </div></div>`;
+}
+function detailProduk(id){
+  const p = KAT.list.find(x=>x.id===id); if(!p) return;
+  const no = String(S.settings.wa_toko||'').replace(/\D/g,'').replace(/^0/,'62');
+  const wa = `https://wa.me/${no}?text=${encodeURIComponent(`Halo, saya mau tanya produk: ${p.nama}`)}`;
+  const el = document.createElement('div'); el.className = 'pd'; el.id = 'pd';
+  el.innerHTML = `<div class="top"><button onclick="tutupPd()" aria-label="Kembali">‹</button><button onclick="tutupPd();location.hash='#/keranjang'" aria-label="Keranjang">🛒</button></div>
+    <div class="wrap">
+      <div class="pimg" ${p.foto_url?`style="background-image:url('${esc(p.foto_url)}')"`:''}>${p.foto_url?'':'📦'}</div>
+      <div class="inf"><div class="pr" id="pdHarga">${rp(p.harga)}<small style="font-size:13px;color:var(--mut)"> /pack</small></div><div class="nm">${esc(p.nama)}</div>
+        <div class="mut">${p.stok<1?'<b style="color:var(--err)">Stok habis</b>':`Stok tersedia: ${p.stok} pack`}</div>
+        ${satuanList(p).length>1 ? `<div style="margin-top:10px"><div class="mut" style="margin-bottom:6px">Pilih satuan:</div><div class="units">${satuanList(p).map((u,k)=>`<button type="button" class="unit ${k===0?'on':''}" ${p.stok<u.isi?'disabled':''} onclick="pilihSatuan(${p.id},'${u.kode}',this)"><b>${u.label}</b><span>${rp(u.harga)}</span>${u.isi>1?`<small>isi ${u.isi} pack${u.hemat>0?` · hemat ${rp(u.hemat)}`:''}</small>`:'<small>satuan</small>'}</button>`).join('')}</div></div>` : ''}</div>
+      <div class="kv"><span>Kategori</span><span>${esc(p.kategori)}</span></div>
+      <div class="kv"><span>Berat</span><span>${p.berat_gram} gram / pack</span></div>
+      <div class="kv"><span>Pengiriman</span><span>J&T Express dari ${esc(S.settings.origin_nama||'-')}</span></div>
+      ${lokasiToko() ? `<div class="kv"><span>Lokasi toko</span><a href="${lokasiToko()}" target="_blank">📍 Lihat di Google Maps</a></div>` : ''}
+      <div class="kv"><span>Poin member</span><span>Kumpulkan poin & tukar hadiah</span></div>
+      <div class="inf" style="border-bottom:0;padding-bottom:0"><b>Deskripsi Produk</b></div>
+      <div class="ds">${esc(p.deskripsi)||'<span class="mut">Tidak ada deskripsi.</span>'}</div>
+    </div>
+    ${isAdmin() ? '' : `<div class="act"><a class="ch" href="${wa}" target="_blank">💬<span>Chat</span></a>
+      <button class="ad" ${p.stok<1?'disabled':''} onclick="addCart(${p.id},false,PD_SAT)">🛒<span>Masukkan Keranjang</span></button>
+      <button class="by" ${p.stok<1?'disabled':''} onclick="if(addCart(${p.id},true,PD_SAT)!==false){tutupPd();location.hash=S.session?'#/checkout':'#/login'}">Beli Sekarang</button></div>`}`;
+  PD_SAT = 'pack';
+  document.body.appendChild(el); document.body.style.overflow = 'hidden';
+}
+function tutupPd(){ $('#pd')?.remove(); document.body.style.overflow = ''; }
+window.addEventListener('hashchange', tutupPd);
+function addCart(id, diam, sat){
+  const p = KAT.list.find(x=>x.id===id); if(!p) return false;
+  const u = satuanList(p).find(x=>x.kode===(sat||'pack')) || satuanList(p)[0];
+  const c = S.cart.find(x=>x.id===id && (x.satuan||'pack')===u.kode);
+  const terpakai = S.cart.filter(x=>x.id===id).reduce((a,x)=>a + x.qty*(x.isi||1), 0);
+  if (c && diam) return true;
+  if (terpakai + u.isi > p.stok) { toast(`Stok tidak cukup (sisa ${p.stok} pack)`, true); return false; }
+  if (c) c.qty++;
+  else S.cart.push({ id:p.id, nama:p.nama, satuan:u.kode, isi:u.isi, harga:u.harga, berat:p.berat_gram*u.isi, foto:p.foto_url, qty:1 });
+  saveCart(); if (!diam) toast(`✓ ${u.label} ditambahkan ke keranjang`); return true;
+}
+/* ----- harga bertingkat PACK / SLOF / BALL ----- */
+function satuanList(p){
+  const L = [{ kode:'pack', label:'PACK', isi:1, harga:p.harga, hemat:0 }];
+  if (p.harga_slof > 0) L.push({ kode:'slof', label:'SLOF', isi:p.isi_slof||10, harga:p.harga_slof, hemat:p.harga*(p.isi_slof||10) - p.harga_slof });
+  if (p.harga_ball > 0) L.push({ kode:'ball', label:'BALL', isi:p.isi_ball||100, harga:p.harga_ball, hemat:p.harga*(p.isi_ball||100) - p.harga_ball });
+  return L;
+}
+let PD_SAT = 'pack';
+function pilihSatuan(id, kode, btn){
+  PD_SAT = kode; const p = KAT.list.find(x=>x.id===id); const u = satuanList(p).find(x=>x.kode===kode);
+  document.querySelectorAll('#pd .unit').forEach(b=>b.classList.toggle('on', b===btn));
+  $('#pdHarga').innerHTML = `${rp(u.harga)}<small style="font-size:13px;color:var(--mut)"> /${u.label.toLowerCase()}${u.isi>1?` (isi ${u.isi} pack)`:''}</small>`;
+}
+const namaItem = i => `${esc(i.nama)}${i.satuan ? ` <span class="sat">${String(i.satuan).toUpperCase()}</span>` : ''}`;
+const namaItemTxt = i => `${i.nama}${i.satuan ? ` (${String(i.satuan).toUpperCase()})` : ''}`;
+
+/* ================= AUTH ================= */
+function viewLogin(){
+  app.innerHTML = `<div class="auth card"><h1>Masuk</h1>
+    <form id="f"><label>Email / ID</label><input name="email" type="text" autocapitalize="off" autocomplete="username" required>
+    <label>Password</label><input name="password" type="password" required>
+    <button class="btn blk" style="margin-top:14px">Masuk</button></form>
+    <p class="mut" style="text-align:center">Belum punya akun? <a href="#/daftar">Daftar member</a></p>
+    <p class="mut" style="text-align:center"><a href="#" onclick="lupaPw();return false">Lupa password?</a></p></div>`;
+  $('#f').onsubmit = async e => {
+    e.preventDefault(); const b = e.target.querySelector('button'); b.disabled = true;
+    const fd = Object.fromEntries(new FormData(e.target));
+    fd.email = fd.email.trim(); if (!fd.email.includes('@')) fd.email = fd.email.toLowerCase() + '@dinimenganti.com'; // login pakai ID
+    const { error } = await sb.auth.signInWithPassword(fd);
+    b.disabled = false;
+    if (error) return toast(error.message === 'Invalid login credentials' ? 'Email/ID atau password salah' : error.message, true);
+    await loadProfile(); location.hash = isAdmin() ? '#/admin/dashboard' : (S.cart.length ? '#/keranjang' : '#/katalog');
+    if (S.profile?.wajib_ganti_pw) setTimeout(()=>formPasswordBaru(false), 300);
+  };
+}
+function lupaPw(){
+  const no = String(S.settings.wa_toko||'').replace(/\D/g,'').replace(/^0/,'62');
+  const pesan = e => `Halo admin, saya lupa password akun member. Mohon reset password akun saya.\nNama: \nNo. HP: \nEmail: ${e||''}`;
+  modal(`<h2 style="margin-top:0">Lupa password</h2>
+    <p class="mut">Admin toko akan memberi password sementara lewat WhatsApp. Setelah masuk, Anda diminta membuat password baru.</p>
+    <label>Email akun Anda</label><input id="lpEmail" type="email" placeholder="nama@email.com" value="${esc($('[name=email]')?.value?.includes('@') ? $('[name=email]').value : '')}">
+    <a class="btn wa blk" style="display:block;margin-top:10px" target="_blank" id="lpWa" href="https://wa.me/${no}?text=${encodeURIComponent(pesan(''))}">Minta reset via WhatsApp admin</a>
+    <button class="btn g blk" style="margin-top:8px" onclick="closeModal()">Tutup</button>`);
+  const upd = () => { $('#lpWa').href = `https://wa.me/${no}?text=${encodeURIComponent(pesan($('#lpEmail').value.trim()))}`; };
+  $('#lpEmail').oninput = upd; upd();
+}
+function formPasswordBaru(dariEmail){
+  modal(`<h2 style="margin-top:0">🔑 Buat password baru</h2>
+    <p class="mut">${dariEmail ? 'Link reset valid. Silakan buat password baru untuk akun Anda.' : 'Akun Anda baru di-reset oleh admin. Demi keamanan, ganti password sementara dengan password Anda sendiri.'}</p>
+    <label>Password baru (min. 6 karakter)</label><input id="pb1" type="password" autocomplete="new-password">
+    <label>Ulangi password baru</label><input id="pb2" type="password" autocomplete="new-password">
+    <button class="btn blk" style="margin-top:12px" id="pbSimpan" onclick="simpanPasswordBaru()">Simpan password baru</button>`);
+  setTimeout(()=>$('#pb1')?.focus(), 50);
+}
+async function simpanPasswordBaru(){
+  const a = $('#pb1').value, b = $('#pb2').value;
+  if (a.length < 6) return toast('Password minimal 6 karakter', true);
+  if (a !== b) return toast('Ulangi password tidak sama', true);
+  $('#pbSimpan').disabled = true;
+  const { error } = await sb.auth.updateUser({ password:a });
+  if (error) { $('#pbSimpan').disabled = false; return fail(error); }
+  await sb.from('profiles').update({ wajib_ganti_pw:false }).eq('id', S.session.user.id);
+  await loadProfile(); closeModal(); toast('✓ Password baru tersimpan');
+}
+function viewDaftar(){
+  app.innerHTML = `<div class="auth card"><h1>Daftar Member</h1>
+    <p class="mut">Kumpulkan poin & tukarkan dengan hadiah menarik.</p>
+    <form id="f"><label>Nama lengkap</label><input name="nama" required>
+    <label>No. HP / WhatsApp</label><input name="no_hp" required inputmode="numeric" pattern="[0-9]*" oninput="this.value=this.value.replace(/[^0-9]/g,'')" placeholder="08xxxxxxxxxx">
+    <label>Email</label><input name="email" type="email" required>
+    <label>Password (min. 6 karakter)</label><input name="password" type="password" minlength="6" required>
+    <button class="btn blk" style="margin-top:14px">Daftar</button></form>
+    <p class="mut" style="text-align:center">Sudah punya akun? <a href="#/login">Masuk</a></p></div>`;
+  $('#f').onsubmit = async e => {
+    e.preventDefault(); const b = e.target.querySelector('button'); b.disabled = true;
+    const fd = Object.fromEntries(new FormData(e.target));
+    if (!hpValid(fd.no_hp)) { b.disabled = false; return toast('No. HP tidak valid (contoh: 081234567890)', true); }
+    const { data, error } = await sb.auth.signUp({ email: fd.email, password: fd.password, options:{ data:{ nama: fd.nama, no_hp: fd.no_hp } } });
+    b.disabled = false;
+    if (error) return fail(error);
+    if (!data.session) { app.innerHTML = `<div class="auth card"><h1>Cek email Anda</h1><p>Kami mengirim link konfirmasi ke <b>${esc(fd.email)}</b>. Klik link tersebut lalu masuk.</p><a class="btn" href="#/login">Ke halaman masuk</a></div>`; return; }
+    toast('Pendaftaran berhasil, selamat datang!'); location.hash = '#/katalog';
+  };
+}
+
+/* ----- alamat member + kode pos otomatis ----- */
+function hpValid(v){ return /^(08|628)\d{7,12}$/.test(String(v||'').trim()); }
+function profilLengkap(p){ return p && hpValid(p.no_hp) && (p.alamat||'').trim() && (p.kota||'').trim() && /^\d{5}$/.test(p.kodepos||''); }
+let ALM = {};
+function formAlamatHtml(p){
+  const awal = p.tujuan_label || [p.kelurahan,p.kecamatan,p.kota].filter(Boolean).join(', ');
+  ALM = { p, awal, pilih:null, list:[] };
+  return `<label>Alamat lengkap (jalan, no rumah, RT/RW)</label><textarea id="almJl" rows="2" placeholder="mis. Jl. Rungkut Mejoyo Selatan 4 No. 62">${esc(p.alamat)}</textarea>
+    <label>Kelurahan / kecamatan</label><input id="almCari" autocomplete="off" placeholder="Ketik min. 3 huruf, mis. Kali Rungkut" value="${esc(awal)}"><div id="almSugg"></div>
+    <div class="row"><div><label>Kota</label><input id="almKota" value="${esc(p.kota)}"></div><div><label>Kode pos</label><input id="almKp" value="${esc(p.kodepos)}" inputmode="numeric" pattern="[0-9]*" oninput="this.value=this.value.replace(/[^0-9]/g,'')" maxlength="5" placeholder="otomatis"></div></div>
+    <p class="mut" style="margin:4px 0 0">Pilih kelurahan dari daftar, kota & kode pos terisi otomatis.</p>`;
+}
+function pasangFormAlamat(){ let tm; $('#almCari').oninput = e => { ALM.pilih = null; clearTimeout(tm); tm = setTimeout(()=>cariAlamat(e.target.value.trim()), 400); }; }
+async function cariAlamat(q){
+  if (q.length < 3) { $('#almSugg').innerHTML = ''; return; }
+  $('#almSugg').innerHTML = '<div class="mut">Mencari…</div>';
+  let list = [];
+  try { const { data } = await sb.functions.invoke('ongkir-jnt', { body:{ action:'search', q } }); list = data?.data || []; } catch {}
+  ALM.list = list;
+  $('#almSugg').innerHTML = list.length ? `<div class="sugg">${list.map((d,i)=>`<div onclick="pilihAlamat(${i})">${esc(d.label || [d.subdistrict_name,d.district_name,d.city_name].join(', '))}${d.zip_code&&d.zip_code!=='0'?` · <b>${esc(d.zip_code)}</b>`:''}</div>`).join('')}</div>` : '<div class="mut">Tidak ditemukan, isi kota & kode pos manual.</div>';
+}
+function pilihAlamat(i){
+  const d = ALM.list[i];
+  ALM.pilih = { id:String(d.id), label:d.label || [d.subdistrict_name,d.district_name,d.city_name].join(', '), kota:d.city_name||'', kecamatan:d.district_name||'', kelurahan:d.subdistrict_name||'' };
+  $('#almCari').value = ALM.pilih.label; $('#almSugg').innerHTML = '';
+  $('#almKota').value = ALM.pilih.kota;
+  if (d.zip_code && d.zip_code !== '0') $('#almKp').value = d.zip_code;
+}
+function dataAlamat(){
+  const s = ALM.pilih, p = ALM.p || {}, tetap = !s && $('#almCari').value.trim() === ALM.awal;
+  return { alamat:$('#almJl').value.trim(), kota:$('#almKota').value.trim(), kodepos:$('#almKp').value.trim(),
+    kecamatan: s ? s.kecamatan : tetap ? (p.kecamatan||'') : '', kelurahan: s ? s.kelurahan : tetap ? (p.kelurahan||'') : $('#almCari').value.trim(),
+    tujuan_id: s ? s.id : tetap ? (p.tujuan_id||null) : null, tujuan_label: s ? s.label : $('#almCari').value.trim() };
+}
+function cekAlamat(a){
+  if (!a.alamat) return 'Isi alamat lengkap';
+  if (!a.kota) return 'Pilih kelurahan / isi kota';
+  if (!/^\d{5}$/.test(a.kodepos)) return 'Kode pos harus 5 angka';
+  return '';
+}
+function lengkapiAlamatModal(){
+  const p = S.profile || {};
+  $('#modalRoot').innerHTML = `<div class="modal"><div class="card" style="max-width:480px">
+    <h2 style="margin-top:0">Lengkapi data pengiriman</h2><p class="mut">Sebelum checkout, lengkapi No. HP & alamat Anda dulu. Data ini disimpan di profil untuk pesanan berikutnya.</p>
+    <label>No. HP / WhatsApp</label><input id="almHp" value="${esc(hpValid(p.no_hp)?p.no_hp:'')}" inputmode="numeric" pattern="[0-9]*" oninput="this.value=this.value.replace(/[^0-9]/g,'')" placeholder="08xxxxxxxxxx">
+    ${formAlamatHtml(p)}
+    <div class="row" style="margin-top:14px"><a class="btn g" href="#/keranjang" onclick="closeModal()">Kembali</a><button class="btn" id="almSimpan" onclick="simpanAlamatModal()">Simpan & lanjut checkout</button></div></div></div>`;
+  pasangFormAlamat();
+}
+async function simpanAlamatModal(){
+  const hp = $('#almHp').value.trim(), a = dataAlamat();
+  if (!hpValid(hp)) return toast('No. HP tidak valid (contoh: 081234567890)', true);
+  const er = cekAlamat(a); if (er) return toast(er, true);
+  $('#almSimpan').disabled = true;
+  try { ok(await sb.from('profiles').update({ no_hp:hp, ...a }).eq('id', S.session.user.id)); await loadProfile(); closeModal(); toast('✓ Alamat tersimpan'); viewCheckout(); }
+  catch(e){ $('#almSimpan').disabled = false; fail(e); }
+}
+
+/* ================= KERANJANG ================= */
+function viewKeranjang(){
+  if (!S.cart.length) { app.innerHTML = `<h1>Keranjang</h1><div class="empty">Keranjang masih kosong.<br><br><a class="btn" href="#/katalog">Lihat katalog</a></div>`; return; }
+  const sub = S.cart.reduce((a,b)=>a+b.harga*b.qty,0), berat = S.cart.reduce((a,b)=>a+b.berat*b.qty,0);
+  app.innerHTML = `<h1>Keranjang</h1><div class="two"><div class="tw"><table>
+    <tr><th>Produk</th><th>Harga</th><th>Qty</th><th>Subtotal</th><th></th></tr>
+    ${S.cart.map((c,i)=>`<tr><td><b>${namaItem(c)}</b><div class="mut">${c.isi>1?`isi ${c.isi} pack · `:''}${c.berat} g</div></td><td>${rp(c.harga)}</td>
+      <td><div class="qty"><button class="btn g sm" onclick="qty(${i},-1)">−</button><span>${c.qty}</span><button class="btn g sm" onclick="qty(${i},1)">+</button></div></td>
+      <td>${rp(c.harga*c.qty)}</td><td><button class="btn g sm" onclick="S.cart.splice(${i},1);saveCart();viewKeranjang()">✕</button></td></tr>`).join('')}
+    </table></div>
+    <div class="card sum"><div><span>Subtotal</span><b>${rp(sub)}</b></div><div><span>Total berat</span><span>${(berat/1000).toLocaleString('id-ID')} kg (J&T: ${kgJnt(berat)} kg)</span></div>
+    <p class="mut">Ongkir J&T dihitung di halaman checkout.</p>
+    <a class="btn blk" style="display:block;text-align:center" href="${S.session?'#/checkout':'#/login'}">${S.session?'Checkout':'Masuk untuk checkout'}</a></div></div>`;
+}
+function qty(i, d){ const c = S.cart[i]; c.qty = Math.max(1, c.qty + d); saveCart(); viewKeranjang(); }
+// (stok final dicek ulang di server saat checkout)
+
+/* ================= CHECKOUT + ONGKIR J&T ================= */
+let CO = {};
+async function viewCheckout(){
+  if (!S.cart.length) { location.hash = '#/keranjang'; return; }
+  await loadProfile(); // ambil akses DP terbaru dari admin
+  if (S.profile && S.profile.role !== 'admin' && !profilLengkap(S.profile)) { app.innerHTML = '<h1>Checkout</h1>'; lengkapiAlamatModal(); return; }
+  const tarif = ok(await sb.from('tarif_manual').select('*').order('kota'));
+  const p = S.profile || {};
+  const berat = S.cart.reduce((a,b)=>a+b.berat*b.qty,0), sub = S.cart.reduce((a,b)=>a+b.harga*b.qty,0);
+  CO = { berat, sub, tarif, mode:'api', tujuan:null, svc:null, opsi:[] };
+  app.innerHTML = `<h1>Checkout</h1><div class="two"><div class="card">
+    <h2 style="margin-top:0">Alamat penerima</h2>
+    <div class="row"><div><label>Nama penerima</label><input id="nm" value="${esc(p.nama)}"></div><div><label>No. HP</label><input id="hp" value="${esc(p.no_hp)}" inputmode="numeric" pattern="[0-9]*" oninput="this.value=this.value.replace(/[^0-9]/g,'')" placeholder="08xxxxxxxxxx"></div></div>
+    <label>Alamat lengkap (jalan, no rumah, RT/RW, kelurahan)</label><textarea id="al" rows="2">${esc(p.alamat)}</textarea>
+    <label>Kota / kecamatan tujuan</label>
+    <div id="tujuanBox"><input id="cari" placeholder="Ketik min. 3 huruf, mis. Wonokromo" value="${esc(p.tujuan_label||p.kecamatan||p.kota)}"><div id="sugg"></div></div>
+    <div class="row"><div><label>Kode pos</label><input id="kp" value="${esc(p.kodepos)}" inputmode="numeric" pattern="[0-9]*" oninput="this.value=this.value.replace(/[^0-9]/g,'')" maxlength="5"></div></div>
+    <label>Catatan (opsional)</label><input id="ct">
+    <h2>Kurir</h2><label class="svc kurir on"><input type="radio" name="kurir" checked><div style="flex:1"><img src="/jnt.png" alt="J&T Express" style="height:30px;display:block"><div class="mut">Antar kota / luar kota</div></div></label>
+    <h2>Layanan J&T</h2><div id="svc" class="mut">Pilih kota tujuan dulu.</div>
+    </div>
+    <div class="card sum" style="align-self:start"><h2 style="margin-top:0">Ringkasan</h2>
+      ${S.cart.map(c=>`<div><span>${namaItem(c)} × ${c.qty}</span><span>${rp(c.harga*c.qty)}</span></div>`).join('')}
+      <div><span>Subtotal</span><b>${rp(sub)}</b></div>
+      <div><span>Berat J&T</span><span>${kgJnt(berat)} kg</span></div>
+      <div><span>Ongkir J&T</span><span id="ong">-</span></div>
+      ${potonganAktif() && (p.poin||0) > 0 ? `<label class="svc" style="margin:6px 0"><input type="checkbox" id="pakaiPoin" onchange="hitungTotal()" ${sub < minBelanjaPoin() ? 'disabled' : ''}><div style="flex:1;display:block"><b>Tukar poin jadi potongan harga</b><div class="mut" id="poinInfo" style="display:block">Saldo ${(p.poin||0).toLocaleString('id-ID')} poin = potongan ${rp(p.poin||0)}${sub < minBelanjaPoin() ? ` · bisa dipakai untuk belanja min. ${rp(minBelanjaPoin())}` : ''}</div></div></label>
+      <div id="potRow" style="display:none"><span>Potongan poin</span><span id="pot" style="color:var(--ok);font-weight:600">-</span></div>` : ''}
+      <div class="tot"><span>Total</span><span id="tot">${rp(sub)}</span></div>
+      <h2>Metode pembayaran</h2>
+      <label class="svc"><input type="radio" name="mb" value="qris" checked onchange="pilihMetode()"><div style="flex:1"><b>QRIS</b><div class="mut">Scan pakai m-banking / GoPay / OVO / DANA / ShopeePay</div></div></label>
+      ${bankAktif() ? `<label class="svc"><input type="radio" name="mb" value="transfer" onchange="pilihMetode()"><div style="flex:1"><b>Transfer Bank</b><div class="mut">${esc(S.settings.bank_nama)} · ${esc(S.settings.bank_norek)}</div></div></label>` : ''}
+      ${S.profile?.boleh_dp ? `<label class="svc" style="margin-top:10px"><input type="checkbox" id="dpOn" onchange="ubahDp()"><div style="flex:1"><b>Bayar DP dulu</b><div class="mut">Bayar sebagian sekarang, sisanya wajib dilunasi setelah paket dikemas & resi J&T terbit</div></div></label>
+      <div id="dpBox" style="display:none;margin-top:6px">
+        <select id="dpPct" onchange="ubahDp()">${[10,20,30,40,50].map(x=>`<option value="${x}" ${x===30?'selected':''}>DP ${x}%</option>`).join('')}</select>
+        <div class="sum" style="margin-top:6px"><div><span>Bayar sekarang (DP)</span><b id="dpNow" style="color:var(--pri)">-</b></div><div><span>Pelunasan nanti</span><span id="dpSisa">-</span></div></div>
+      </div>` : ''}
+      <button class="btn blk" id="buat" style="margin-top:12px" onclick="buatPesanan()">Buat Pesanan & Bayar (QRIS)</button>
+      <p class="mut" id="mbInfo">Setelah pesanan dibuat, QRIS pembayaran akan muncul. Bayar sesuai total, lalu kirim bukti bayar ke WhatsApp toko.</p>
+    </div></div>`;
+  // cek apakah API ongkir aktif
+  const t = await cekOngkirApi();
+  if (!t) { CO.mode = 'manual'; drawTujuanManual(); }
+  else {
+    let tm; $('#cari').oninput = e => { clearTimeout(tm); tm = setTimeout(()=>cariTujuan(e.target.value), 400); };
+    if (p.tujuan_id) { CO.sugg = [{ id:p.tujuan_id, label:p.tujuan_label, city_name:p.kota, district_name:p.kecamatan, subdistrict_name:p.kelurahan, zip_code:p.kodepos }]; pilihTujuan(0); }
+    else if ($('#cari').value.length >= 3) cariTujuan($('#cari').value);
+  }
+}
+async function cekOngkirApi(){
+  try { const { data } = await sb.functions.invoke('ongkir-jnt', { body:{ action:'search', q:'xx' } }); return data && data.ok; }
+  catch { return false; }
+}
+async function cariTujuan(q){
+  if (q.length < 3) { $('#sugg').innerHTML = ''; return; }
+  const { data } = await sb.functions.invoke('ongkir-jnt', { body:{ action:'search', q } });
+  const list = data?.data || [];
+  CO.sugg = list;
+  $('#sugg').innerHTML = list.length ? `<div class="sugg">${list.map((d,i)=>`<div onclick="pilihTujuan(${i})">${esc(d.label || [d.subdistrict_name,d.district_name,d.city_name,d.province_name].join(', '))}</div>`).join('')}</div>` : '<div class="mut">Tidak ditemukan</div>';
+}
+async function pilihTujuan(i){
+  const d = CO.sugg[i];
+  CO.tujuan = { id: d.id, kota: d.city_name || '', kecamatan: d.district_name || '', kelurahan: d.subdistrict_name || '', label: d.label };
+  $('#cari').value = d.label || d.district_name; $('#sugg').innerHTML = '';
+  if (d.zip_code && d.zip_code !== '0') $('#kp').value = d.zip_code;
+  $('#svc').innerHTML = 'Menghitung ongkir J&T…';
+  if (!S.settings.origin_id) { $('#svc').innerHTML = '<span style="color:var(--err)">Admin belum mengisi ID kota asal (Pengaturan).</span>'; return; }
+  const { data } = await sb.functions.invoke('ongkir-jnt', { body:{ action:'cost', origin:S.settings.origin_id, destination:d.id, weight:CO.berat } });
+  CO.opsi = (data?.data || []).map(x=>({ layanan:x.service, ket:x.description, ongkir:x.cost, etd:x.etd }));
+  drawSvc();
+}
+function drawTujuanManual(){
+  $('#tujuanBox').innerHTML = `<select id="kotaM"><option value="">— pilih kota —</option>${CO.tarif.map((t,i)=>`<option value="${i}">${esc(t.kota)}</option>`).join('')}<option value="lain">Kota lain…</option></select>
+    <input id="kotaLain" placeholder="Nama kota/kecamatan" style="display:none;margin-top:6px">`;
+  $('#kotaM').onchange = e => {
+    const v = e.target.value; $('#kotaLain').style.display = v==='lain' ? 'block' : 'none';
+    if (v === '') { CO.opsi = []; drawSvc(); return; }
+    const kg = kgJnt(CO.berat);
+    if (v === 'lain') { CO.tujuan = { id:'', kota:'' }; CO.opsi = [{ layanan:'EZ', ket:'Tarif estimasi (dikonfirmasi admin)', ongkir: kg * Number(S.settings.tarif_default_per_kg||0), etd:'' }]; }
+    else { const t = CO.tarif[v]; CO.tujuan = { id:'', kota:t.kota }; CO.opsi = [{ layanan:'EZ', ket:'J&T Reguler', ongkir: kg * t.tarif_per_kg, etd:t.etd }]; }
+    drawSvc();
+  };
+}
+function drawSvc(){
+  if (!CO.opsi.length) { $('#svc').innerHTML = '<span class="mut">Layanan J&T tidak tersedia untuk tujuan ini.</span>'; CO.svc=null; hitungTotal(); return; }
+  $('#svc').innerHTML = CO.opsi.map((o,i)=>`<label class="svc"><input type="radio" name="sv" value="${i}" ${i===0?'checked':''} onchange="CO.svc=CO.opsi[${i}];hitungTotal()">
+    <div style="flex:1"><b>J&T ${esc(o.layanan)}</b> <span class="mut">${esc(o.ket||'')}</span><div class="mut">${o.etd?`Estimasi ${esc(o.etd)}`:''}</div></div><b>${rp(o.ongkir)}</b></label>`).join('');
+  CO.svc = CO.opsi[0]; hitungTotal();
+}
+function hitungTotal(){ const o = CO.svc?.ongkir || 0; $('#ong').textContent = CO.svc ? rp(o) : '-';
+  if ($('#pakaiPoin') && !$('#pakaiPoin').disabled) { const k = potonganPoin(), r = ratePoin(), saldo = S.profile?.poin || 0;
+    $('#potRow').style.display = k.pot ? '' : 'none'; $('#pot').textContent = '−' + rp(k.pot);
+    $('#poinInfo').textContent = k.poin ? `${k.poin.toLocaleString('id-ID')} poin dipakai · sisa ${(saldo-k.poin).toLocaleString('id-ID')} poin` : `Saldo ${saldo.toLocaleString('id-ID')} poin = potongan ${rp(saldo)}`; }
+  $('#tot').textContent = rp(totalCO()); if ($('#dpOn')) ubahDp(); else if ($('#buat')) pilihMetode(); }
+async function buatPesanan(){
+  const nama = $('#nm').value.trim(), hp = $('#hp').value.trim(), alamat = $('#al').value.trim();
+  if (!nama || !hp || !alamat) return toast('Lengkapi nama, HP, dan alamat', true);
+  if (!hpValid(hp)) return toast('No. HP tidak valid (contoh: 081234567890)', true);
+  if (CO.mode === 'manual' && $('#kotaM')?.value === 'lain') CO.tujuan.kota = $('#kotaLain').value.trim();
+  if (!CO.tujuan || !CO.tujuan.kota && !CO.tujuan.label) return toast('Pilih kota tujuan', true);
+  if (!CO.svc) return toast('Pilih layanan J&T', true);
+  const b = $('#buat'); b.disabled = true;
+  try {
+    const kirim = { nama, hp, alamat, kota: CO.tujuan.kota, kecamatan: CO.tujuan.kecamatan || '', kodepos: $('#kp').value.trim(),
+      tujuan_id: String(CO.tujuan.id||''), layanan: CO.svc.layanan, ongkir: CO.svc.ongkir, etd: CO.svc.etd || '', catatan: $('#ct').value.trim(), metode_bayar: metodeDipilih(), dp_persen: dpDipilih(), pakai_poin: !!$('#pakaiPoin')?.checked };
+    const kode = ok(await sb.rpc('create_order', { p_items: S.cart.map(c=>({ id:c.id, qty:c.qty, satuan:c.satuan||'pack' })), p_kirim: kirim }));
+    // simpan alamat ke profil
+    await sb.from('profiles').update({ alamat, kota: kirim.kota, kecamatan: kirim.kecamatan, kodepos: kirim.kodepos,
+      ...(CO.tujuan.id ? { kelurahan: CO.tujuan.kelurahan||'', tujuan_id: String(CO.tujuan.id), tujuan_label: CO.tujuan.label||'' } : {}) }).eq('id', S.session.user.id);
+    const o = ok(await sb.from('orders').select('*').eq('kode', kode).single());
+    S.cart = []; saveCart(); if (o.poin_dipakai) loadProfile();
+    ORD_TERAKHIR = o;
+    app.innerHTML = `<div class="auth card" style="text-align:center"><div style="font-size:48px">✅</div><h1>Pesanan dibuat</h1>
+      <p>Kode pesanan <b>${esc(kode)}</b><br>Total bayar <b style="color:var(--pri);font-size:18px">${rp(o.total)}</b></p>
+      ${o.dp_persen ? `<p class="mut">DP ${o.dp_persen}%: <b style="color:var(--pri)">${rp(o.dp_nominal)}</b> · sisa ${rp(o.total - o.dp_nominal)} dilunasi setelah resi terbit</p>` : ''}
+      <button class="btn blk" onclick="bukaBayar(ORD_TERAKHIR)">Bayar ${o.dp_persen ? `DP ${rp(o.dp_nominal)}` : 'Sekarang'} (${o.metode_bayar==='transfer'?'Transfer Bank':'QRIS'})</button>
+      <a class="btn wa blk" style="display:block;margin-top:8px" href="${waLink(o, true)}" target="_blank">Kirim Pesanan & Bukti Bayar ke WhatsApp</a>
+      <p><a href="#/pesanan">Lihat pesanan saya</a></p></div>`;
+    bukaBayar(o);
+  } catch(e){ fail(e); b.disabled = false; }
+}
+function waLink(o, bayar){
+  const lines = [`*PESANAN ${o.kode}*`, `${S.settings.nama_toko||''}`, '',
+    ...o.items.map(i=>`• ${namaItemTxt(i)} x${i.qty} = ${rp(i.harga*i.qty)}`), '',
+    `Subtotal: ${rp(o.subtotal)}`, `Ongkir J&T ${o.layanan} (${kgJnt(o.berat_gram)} kg): ${rp(o.ongkir)}`, o.potongan_poin ? `Potongan tukar ${o.poin_dipakai} poin: -${rp(o.potongan_poin)}` : '', `*Total: ${rp(o.total)}*`, o.dp_persen ? `DP ${o.dp_persen}%: ${rp(o.dp_nominal)} · Sisa pelunasan: ${rp(o.total - o.dp_nominal)}` : '', '',
+    `Penerima: ${o.penerima_nama} (${o.penerima_hp})`, `Alamat: ${o.penerima_alamat}, ${[o.penerima_kecamatan,o.penerima_kota,o.penerima_kodepos].filter(Boolean).join(', ')}`,
+    o.catatan ? `Catatan: ${o.catatan}` : '', bayar ? `\nSaya sudah bayar via ${o.metode_bayar==='transfer'?`transfer ${S.settings.bank_nama||'bank'}`:'QRIS'} untuk ${jenisTagihan(o)} sebesar ${rp(tagihan(o))}. Bukti bayar saya lampirkan.` : ''].filter(x=>x!==null);
+  const no = String(S.settings.wa_toko||'').replace(/\D/g,'').replace(/^0/,'62');
+  return `https://wa.me/${no}?text=${encodeURIComponent(lines.join('\n'))}`;
+}
+
+/* ================= PEMBAYARAN QRIS ================= */
+let ORD_TERAKHIR = null, PS_LIST = [];
+const qrisUrl = () => S.settings.qris_url || 'qris.jpg';
+function bayarQris(o){
+  modal(`<div style="text-align:center"><h2 style="margin:0 0 4px">Pembayaran QRIS</h2>
+    <div class="mut">Pesanan <b>${esc(o.kode)}</b></div>
+    <div style="margin:10px 0 4px" class="mut">${jenisTagihan(o)} yang harus dibayar</div>
+    <div style="font-size:26px;font-weight:800;color:var(--pri)">${rp(tagihan(o))}</div>${infoDp(o)}
+    <img src="${esc(qrisUrl())}" alt="QRIS ${esc(S.settings.nama_toko||'')}" style="width:100%;max-width:340px;margin:12px auto;display:block;border-radius:8px;border:1px solid var(--bd)">
+    <ol class="mut" style="text-align:left;font-size:12.5px;padding-left:18px;margin:4px 0 12px">
+      <li>Scan QRIS di atas pakai m-banking / e-wallet (GoPay, OVO, DANA, ShopeePay, dll.), atau <b>download</b> lalu upload dari galeri.</li>
+      <li>Masukkan nominal <b>${rp(tagihan(o))}</b> persis.</li>
+      <li>Kirim bukti bayar ke WhatsApp toko agar pesanan segera diproses.</li></ol>
+    <button class="btn blk" onclick="downloadQris()">⬇ Download QRIS</button>
+    <a class="btn wa blk" style="display:block;margin-top:8px" target="_blank" href="${waLink(o, true)}">Kirim Bukti Bayar ke WhatsApp</a>
+    <button class="btn g blk" style="margin-top:8px" onclick="closeModal()">Tutup</button></div>`);
+}
+async function downloadQris(){
+  const nama = `QRIS-${(S.settings.nama_toko||'toko').replace(/\W+/g,'-')}.jpg`;
+  try {
+    const r = await fetch(qrisUrl()); const b = await r.blob(); const u = URL.createObjectURL(b);
+    const a = document.createElement('a'); a.href = u; a.download = nama; document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(()=>URL.revokeObjectURL(u), 5000); toast('QRIS tersimpan di unduhan/galeri');
+  } catch { window.open(qrisUrl(), '_blank'); }
+}
+
+// link toko untuk pesan WA: pakai link pendek (bit.ly) bila diisi di Pengaturan, kalau kosong pakai alamat web ini
+const linkToko = () => (String(S.settings.link_pendek||'').trim() || location.origin).replace(/\/$/,'');
+function toggleTarif(){ const on = localStorage.getItem('tarifTampil') !== '1'; localStorage.setItem('tarifTampil', on ? '1' : '0');
+  $('#tarifCard').style.display = on ? '' : 'none'; $('#tarifTgl').textContent = `${on?'Sembunyikan':'Tampilkan'} tarif manual J&T`; if (on) $('#tarifCard').scrollIntoView({ behavior:'smooth' }); }
+/* ================= TUKAR POIN JADI POTONGAN HARGA ================= */
+// 1 poin = Rp1, semua poin dipakai
+const ratePoin = () => 1;
+const potonganAktif = () => S.settings.poin_potongan_aktif === '1';
+const minBelanjaPoin = () => parseInt(S.settings.poin_min_belanja, 10) || 100000;
+function potonganPoin(){
+  if (!$('#pakaiPoin')?.checked || CO.sub < minBelanjaPoin()) return { poin:0, pot:0 };
+  const poin = Math.min(S.profile?.poin || 0, CO.sub + (CO.svc?.ongkir || 0));
+  return { poin, pot: poin };
+}
+const totalCO = () => CO.sub + (CO.svc?.ongkir || 0) - potonganPoin().pot;
+/* ================= DP (UANG MUKA) ================= */
+const hitungDp = (total, pct) => pct ? Math.ceil(total * pct / 100 / 100) * 100 : 0;   // dibulatkan ke atas per Rp100 (sama dengan server)
+const dpDipilih = () => $('#dpOn')?.checked ? +$('#dpPct').value : 0;
+function ubahDp(){
+  const on = $('#dpOn').checked; $('#dpBox').style.display = on ? '' : 'none';
+  const tot = totalCO(), dp = hitungDp(tot, dpDipilih());
+  $('#dpNow').textContent = rp(dp); $('#dpSisa').textContent = rp(tot - dp);
+  pilihMetode();
+}
+// tagihan yang harus dibayar sekarang: DP → pelunasan → 0 (lunas)
+const tagihan = o => o.status_bayar === 'lunas' ? 0 : o.dp_persen ? (o.status_bayar === 'dp' ? o.total - o.dp_nominal : o.dp_nominal) : o.total;
+const jenisTagihan = o => o.dp_persen ? (o.status_bayar === 'dp' ? 'Pelunasan' : `DP ${o.dp_persen}%`) : 'Total';
+const infoDp = o => o.dp_persen ? `<div class="mut" style="margin-top:4px">Total pesanan ${rp(o.total)} · DP ${o.dp_persen}% ${rp(o.dp_nominal)} · sisa ${rp(o.total - o.dp_nominal)}</div>` : '';
+const chipBayar = o => o.status === 'batal' ? '' : o.status_bayar === 'lunas' ? '<span class="st selesai">lunas</span>'
+  : o.status_bayar === 'dp' ? `<span class="st dikonfirmasi">DP ${o.dp_persen}% masuk</span><div class="mut">sisa ${rp(o.total - o.dp_nominal)}</div>`
+  : `<span class="st menunggu">belum bayar</span>${o.dp_persen ? `<div class="mut">DP ${o.dp_persen}%: ${rp(o.dp_nominal)}</div>` : ''}`;
+
+/* ================= PEMBAYARAN TRANSFER BANK ================= */
+const bankAktif = () => !!(String(S.settings.bank_nama||'').trim() && String(S.settings.bank_norek||'').trim());
+const metodeDipilih = () => document.querySelector('input[name=mb]:checked')?.value || 'qris';
+function pilihMetode(){
+  const tf = metodeDipilih() === 'transfer';
+  const dp = dpDipilih(), tot = totalCO();
+  $('#buat').textContent = `Buat Pesanan & Bayar ${dp ? `DP ${rp(hitungDp(tot, dp))} ` : ''}(${tf ? 'Transfer Bank' : 'QRIS'})`;
+  $('#mbInfo').textContent = tf ? 'Setelah pesanan dibuat, nomor rekening toko akan muncul. Transfer sesuai total, lalu kirim bukti transfer ke WhatsApp toko.'
+                                : 'Setelah pesanan dibuat, QRIS pembayaran akan muncul. Bayar sesuai total, lalu kirim bukti bayar ke WhatsApp toko.';
+}
+function bukaBayar(o){ return o?.metode_bayar === 'transfer' ? bayarTransfer(o) : bayarQris(o); }
+function salin(t, msg){ (navigator.clipboard?.writeText(String(t)) || Promise.reject()).then(()=>toast(msg||'Disalin')).catch(()=>prompt('Salin manual:', t)); }
+function bayarTransfer(o){
+  const st = S.settings;
+  if (!bankAktif()) return bayarQris(o);
+  modal(`<div style="text-align:center"><h2 style="margin:0 0 4px">Transfer Bank</h2>
+    <div class="mut">Pesanan <b>${esc(o.kode)}</b></div>
+    <div style="margin:10px 0 4px" class="mut">${jenisTagihan(o)} yang harus ditransfer</div>
+    <div style="font-size:26px;font-weight:800;color:var(--pri)">${rp(tagihan(o))}</div>${infoDp(o)}
+    <button class="btn g sm" style="margin-top:4px" onclick="salin('${tagihan(o)}','Nominal disalin')">Salin nominal</button></div>
+    <div class="card" style="box-shadow:none;border:1px solid var(--bd);margin:14px 0;text-align:center">
+      <div class="mut">Bank</div><div style="font-size:18px;font-weight:700">${esc(st.bank_nama)}</div>
+      <div class="mut" style="margin-top:8px">Nomor rekening</div>
+      <div style="font-size:24px;font-weight:800;letter-spacing:1.5px;font-family:monospace">${esc(String(st.bank_norek).replace(/(\d{4})(?=\d)/g,'$1 '))}</div>
+      <button class="btn o sm" style="margin-top:6px" onclick="salin('${esc(st.bank_norek)}','Nomor rekening disalin')">📋 Salin nomor rekening</button>
+      ${st.bank_atas_nama ? `<div class="mut" style="margin-top:8px">Atas nama</div><div style="font-weight:700">${esc(st.bank_atas_nama)}</div>` : ''}
+    </div>
+    <ol class="mut" style="font-size:12.5px;padding-left:18px;margin:4px 0 12px">
+      <li>Transfer <b>tepat ${rp(tagihan(o))}</b> ke rekening di atas.</li>
+      <li>Simpan / screenshot bukti transfer.</li>
+      <li>Kirim bukti transfer ke WhatsApp toko agar pesanan segera diproses.</li></ol>
+    <a class="btn wa blk" style="display:block" target="_blank" href="${waLink(o, true)}">Kirim Bukti Transfer ke WhatsApp</a>
+    <button class="btn g blk" style="margin-top:8px" onclick="closeModal()">Tutup</button>`);
+}
+
+/* ================= MEMBER: PESANAN ================= */
+async function viewPesanan(){
+  const d = ok(await sb.from('orders').select('*').eq('member_id', S.session.user.id).order('created_at',{ascending:false}));
+  PS_LIST = d;
+  app.innerHTML = `<h1>Pesanan Saya</h1>${d.length ? `<div class="tw"><table><tr><th>Kode</th><th>Tanggal</th><th>Item</th><th>Total</th><th>Status</th><th>Resi J&T</th><th></th></tr>
+    ${d.map(o=>`<tr><td><b>${esc(o.kode)}</b></td><td>${tgl(o.created_at)}</td><td>${o.items.map(i=>`${namaItem(i)} ×${i.qty}`).join('<br>')}</td>
+      <td>${rp(o.total)}${o.potongan_poin?`<div class="mut">hemat ${rp(o.potongan_poin)} (${o.poin_dipakai} poin)</div>`:''}<div style="margin-top:3px">${chipBayar(o)}</div></td><td><span class="st ${o.status}">${o.status}</span></td>
+      <td>${o.resi ? (o.status_bayar !== 'lunas' ? `<span style="color:var(--err);font-weight:600">🔒 Resi sudah terbit</span><div class="mut">Lunasi ${rp(tagihan(o))} untuk melihat resi</div>` : `<b>${esc(o.resi)}</b><br><button class="btn o sm" style="margin-top:4px" onclick="lacakResi('${esc(o.resi)}')">📦 Lacak</button>`) : (o.status==='dikonfirmasi'?'<span class="mut">Sedang dikemas</span>':'-')}</td>
+      <td style="white-space:nowrap">${o.status!=='batal' && tagihan(o) > 0 && (o.status==='menunggu' || o.status_bayar==='dp') ? `<button class="btn sm" onclick="bukaBayar(PS_LIST.find(x=>x.id===${o.id}))">${o.status_bayar==='dp' ? 'Bayar Pelunasan' : 'Bayar'}</button> `:''}<a class="btn wa sm" href="${waLink(o, o.status==='menunggu' || o.status_bayar==='dp')}" target="_blank">WA</a> ${o.status==='menunggu'?`<button class="btn g sm" onclick="batalOrder(${o.id})">Batal</button>`:''}</td></tr>`).join('')}
+    </table></div>` : '<div class="empty">Belum ada pesanan.</div>'}`;
+}
+async function batalOrder(id){ if(!confirm('Batalkan pesanan ini?')) return; try{ ok(await sb.rpc('cancel_order',{p_id:id})); toast('Pesanan dibatalkan'); route(); }catch(e){fail(e)} }
+
+/* ================= LACAK RESI J&T ================= */
+async function lacakResi(resi){
+  modal(`<h2 style="margin-top:0">Lacak Paket J&T</h2><div class="row" style="flex:none;gap:6px"><b style="font-size:16px;flex:none">${esc(resi)}</b>
+    <button class="btn g sm" style="flex:none" onclick="navigator.clipboard?.writeText('${esc(resi)}');toast('Resi disalin')">Salin</button></div>
+    <div id="lk" style="margin-top:12px" class="mut">Mengambil data dari J&T…</div>
+    <button class="btn g blk" style="margin-top:12px" onclick="closeModal()">Tutup</button>`);
+  let data = null, err = '';
+  try { const r = await sb.functions.invoke('ongkir-jnt', { body:{ action:'track', awb:resi } }); data = r.data; if (!data?.ok) err = data?.error || r.error?.message || ''; }
+  catch(e){ err = e.message; }
+  const box = $('#lk'); if (!box) return;
+  const cadangan = `<div class="mut" style="margin-top:10px">Bisa juga cek langsung di <a href="https://jet.co.id/track" target="_blank">jet.co.id/track</a> (tempel nomor resi).</div>`;
+  if (!data?.ok) { box.innerHTML = `<div style="color:var(--err)">Data pelacakan belum tersedia.</div><div class="mut">${/not found|tidak ditemukan|404|invalid awb/i.test(err)?'Resi belum terdaftar di sistem J&T — biasanya muncul beberapa jam setelah paket diserahkan.':esc(err)}</div>${cadangan}`; return; }
+  const d = data.data || {}, sm = d.summary || {}, ds = d.delivery_status || {};
+  const man = (d.manifest || []).slice().sort((a,b)=> (b.manifest_date+' '+b.manifest_time).localeCompare(a.manifest_date+' '+a.manifest_time));
+  box.innerHTML = `<div class="card" style="background:${d.delivered?'#e6f7f4':'var(--pri-l)'};box-shadow:none;margin-bottom:10px">
+      <b style="color:${d.delivered?'var(--ok)':'var(--pri)'}">${d.delivered?'✓ Paket sudah diterima':esc(sm.status||'Dalam pengiriman')}</b>
+      <div class="mut">${esc(sm.origin||'')}${sm.destination?' → '+esc(sm.destination):''}</div>
+      ${d.delivered && ds.pod_receiver ? `<div class="mut">Diterima: ${esc(ds.pod_receiver)} · ${esc(ds.pod_date||'')} ${esc(ds.pod_time||'')}</div>`:''}</div>
+    ${man.length ? `<div style="max-height:45vh;overflow:auto">${man.map((m,i)=>`<div style="display:flex;gap:10px;padding:8px 0;border-bottom:1px solid var(--bd)">
+      <div style="width:10px;height:10px;border-radius:50%;margin-top:5px;flex:none;background:${i===0?'var(--pri)':'#ccc'}"></div>
+      <div><div style="color:var(--tx);${i===0?'font-weight:600':''}">${esc(m.manifest_description||'')}</div><div class="mut">${esc(m.manifest_date||'')} ${esc(m.manifest_time||'')}${m.city_name?' · '+esc(m.city_name):''}</div></div></div>`).join('')}</div>` : '<div class="mut">Belum ada riwayat perjalanan.</div>'}
+    ${cadangan}`;
+}
+
+/* ================= MEMBER: POIN & HADIAH ================= */
+async function viewPoin(){
+  await loadProfile(); renderNav();
+  const [rw, logs, red] = await Promise.all([
+    sb.from('rewards').select('*').eq('aktif',true).order('poin'),
+    sb.from('point_logs').select('*').eq('member_id',S.session.user.id).order('created_at',{ascending:false}).limit(50),
+    sb.from('redemptions').select('*').eq('member_id',S.session.user.id).order('created_at',{ascending:false}),
+  ]).then(r=>r.map(ok));
+  const poin = S.profile?.poin || 0;
+  app.innerHTML = `<div class="poinbox">Poin Anda<b>${poin.toLocaleString('id-ID')}</b><span>Member: ${esc(S.profile?.nama)}</span></div>
+    <h2>Tukar Hadiah</h2>${rw.length?`<div class="grid">${rw.map(r=>`<div class="prod"><div class="img" ${r.foto_url?`style="background-image:url('${esc(r.foto_url)}')"`:''}>${r.foto_url?'':'🎁'}</div>
+      <div class="b"><div class="n">${esc(r.nama)}</div><div class="p">${r.poin.toLocaleString('id-ID')} poin</div><div class="mut">${esc(r.deskripsi)} · Stok ${r.stok}</div>
+      <div style="margin-top:auto;padding-top:6px"><button class="btn sm blk" ${poin<r.poin||r.stok<1?'disabled':''} onclick="tukar(${r.id},'${esc(r.nama).replace(/'/g,'')}',${r.poin})">${r.stok<1?'Habis':poin<r.poin?`Kurang ${(r.poin-poin).toLocaleString('id-ID')} poin`:'Tukar'}</button></div></div></div>`).join('')}</div>`:'<div class="empty">Belum ada hadiah.</div>'}
+    <div class="two" style="margin-top:10px"><div><h2>Riwayat Poin</h2>${logs.length?`<div class="tw"><table><tr><th>Tanggal</th><th>Keterangan</th><th>Poin</th><th>Saldo</th></tr>
+      ${logs.map(l=>`<tr><td>${tgl(l.created_at)}</td><td>${esc(l.keterangan)}</td><td style="color:${l.delta>0?'var(--ok)':'var(--err)'};font-weight:700">${l.delta>0?'+':''}${l.delta}</td><td>${l.saldo_akhir}</td></tr>`).join('')}</table></div>`:'<div class="empty">Belum ada riwayat.</div>'}</div>
+    <div><h2>Penukaran Saya</h2>${red.length?`<div class="tw"><table><tr><th>Hadiah</th><th>Poin</th><th>Status</th></tr>
+      ${red.map(r=>`<tr><td>${esc(r.reward_nama)}<div class="mut">${tgl(r.created_at)}${r.catatan_admin?' · '+esc(r.catatan_admin):''}</div></td><td>${r.poin}</td><td><span class="st ${r.status}">${r.status}</span></td></tr>`).join('')}</table></div>`:'<div class="empty">Belum ada penukaran.</div>'}</div></div>`;
+}
+async function tukar(id, nama, poin){
+  if (!confirm(`Tukar ${poin} poin dengan "${nama}"?`)) return;
+  try { ok(await sb.rpc('redeem_reward', { p_reward:id })); toast('Penukaran diajukan, menunggu persetujuan admin'); viewPoin(); } catch(e){ fail(e); }
+}
+
+/* ================= MEMBER: PROFIL ================= */
+function viewProfil(){
+  const p = S.profile || {};
+  app.innerHTML = `<div class="auth card" style="max-width:520px"><h1>Profil</h1><p class="mut">${esc(S.session.user.email)}</p>
+    <form id="f"><label>Nama</label><input name="nama" value="${esc(p.nama)}" required>
+    <label>No. HP / WhatsApp</label><input name="no_hp" value="${esc(p.no_hp)}" inputmode="numeric" pattern="[0-9]*" oninput="this.value=this.value.replace(/[^0-9]/g,'')" placeholder="08xxxxxxxxxx">
+    ${formAlamatHtml(p)}
+    <button class="btn blk" style="margin-top:14px">Simpan</button></form>
+    <h2>Ganti password</h2><div class="row"><input id="pw" type="password" placeholder="Password baru (min. 6)"><button class="btn o" style="flex:none" onclick="gantiPw()">Ganti</button></div>
+    <button class="btn g blk" style="margin-top:18px;color:var(--err)" onclick="logout()">Keluar dari akun</button></div>`;
+  pasangFormAlamat();
+  $('#f').onsubmit = async e => { e.preventDefault();
+    const fd = Object.fromEntries(new FormData(e.target)), a = dataAlamat();
+    if (!hpValid(fd.no_hp)) return toast('No. HP tidak valid (contoh: 081234567890)', true);
+    if (a.kodepos && !/^\d{5}$/.test(a.kodepos)) return toast('Kode pos harus 5 angka', true);
+    try { ok(await sb.from('profiles').update({ ...fd, ...a }).eq('id',S.session.user.id)); await loadProfile(); toast('Profil disimpan'); } catch(er){ fail(er); } };
+}
+async function gantiPw(){ const pw = $('#pw').value; if (pw.length<6) return toast('Minimal 6 karakter', true); const { error } = await sb.auth.updateUser({ password:pw }); if (error) return fail(error); await sb.from('profiles').update({ wajib_ganti_pw:false }).eq('id', S.session.user.id); toast('Password diganti'); }
+
+/* ================= ADMIN: DASHBOARD ================= */
+async function viewAdminDash(){
+  const [o, m, r, p] = await Promise.all([
+    sb.from('orders').select('status,total,created_at'),
+    sb.from('profiles').select('id,poin').eq('role','member'),
+    sb.from('redemptions').select('id').eq('status','menunggu'),
+    sb.from('products').select('id,stok,nama').eq('aktif',true),
+  ]).then(x=>x.map(ok));
+  const c = s => o.filter(x=>x.status===s).length;
+  const omzet = o.filter(x=>['dikonfirmasi','dikirim','selesai'].includes(x.status)).reduce((a,b)=>a+b.total,0);
+  const bulan = new Date().toISOString().slice(0,7);
+  const omzetBln = o.filter(x=>['dikonfirmasi','dikirim','selesai'].includes(x.status) && x.created_at.startsWith(bulan)).reduce((a,b)=>a+b.total,0);
+  const low = p.filter(x=>x.stok<=5);
+  app.innerHTML = `<h1>Dashboard Admin</h1><div class="stats">
+    <a class="stat" href="#/admin/pesanan?s=menunggu"><span class="mut">Pesanan baru</span><b style="color:var(--warn)">${c('menunggu')}</b></a>
+    <a class="stat" href="#/admin/pesanan?s=dikonfirmasi"><span class="mut">Siap kirim</span><b>${c('dikonfirmasi')}</b></a>
+    <div class="stat"><span class="mut">Dikirim</span><b>${c('dikirim')}</b></div>
+    <div class="stat"><span class="mut">Omzet bulan ini</span><b>${rp(omzetBln)}</b></div>
+    <div class="stat"><span class="mut">Omzet total</span><b>${rp(omzet)}</b></div>
+    <a class="stat" href="#/admin/member"><span class="mut">Member</span><b>${m.length}</b></a>
+    <div class="stat"><span class="mut">Total poin beredar</span><b>${m.reduce((a,b)=>a+b.poin,0).toLocaleString('id-ID')}</b></div>
+    <a class="stat" href="#/admin/penukaran"><span class="mut">Penukaran menunggu</span><b style="color:var(--warn)">${r.length}</b></a></div>
+    ${low.length?`<div class="card"><b>⚠️ Stok menipis</b><div class="mut">${low.map(x=>`${esc(x.nama)} (${x.stok})`).join(' · ')}</div></div>`:''}`;
+}
+
+/* ================= ADMIN: PESANAN + CETAK LABEL ================= */
+let AP = { s:'menunggu', q:'', list:[], sel:new Set() };
+const autoPrint = () => localStorage.getItem('autoPrint') || 'konfirmasi'; // off | konfirmasi | baru
+async function viewAdminPesanan(){
+  const qs = new URLSearchParams(location.hash.split('?')[1]||''); if (qs.get('s')) AP.s = qs.get('s');
+  let q = sb.from('orders').select('*, profiles(nama,no_hp,poin)').order('created_at',{ascending:false}).limit(300);
+  if (AP.s !== 'semua') q = q.eq('status', AP.s);
+  AP.list = ok(await q); AP.sel = new Set();
+  drawAdminPesanan();
+}
+function drawAdminPesanan(){
+  const f = AP.list.filter(o => !AP.q || (o.kode+o.penerima_nama+o.penerima_hp+(o.resi||'')).toLowerCase().includes(AP.q.toLowerCase()));
+  const tabs = ['menunggu','dikonfirmasi','dikirim','selesai','batal','semua'];
+  app.innerHTML = `<h1>Pesanan</h1>
+    <div class="row" style="flex:none;gap:6px;margin-bottom:12px">${tabs.map(t=>`<span class="chip ${t===AP.s?'on':''}" style="flex:none" onclick="AP.s='${t}';location.hash='#/admin/pesanan?s=${t}'">${t}</span>`).join('')}</div>
+    <div class="toolbar"><input id="q" placeholder="Cari kode / nama / HP / resi" value="${esc(AP.q)}">
+      <select id="ap" title="Cetak label otomatis"><option value="off">Cetak otomatis: mati</option><option value="konfirmasi">Cetak otomatis saat konfirmasi</option><option value="baru">Cetak otomatis saat pesanan baru masuk</option></select>
+      <button class="btn o" onclick="cetakTerpilih()">🖨️ Cetak label terpilih</button>
+      <button class="btn o" onclick="cetakBelum()">🖨️ Cetak semua belum dicetak</button></div>
+    ${f.length?`<div class="tw"><table><tr><th><input type="checkbox" onchange="AP.sel=new Set(this.checked?${JSON.stringify(f.map(o=>o.id))}:[]);drawAdminPesanan()"></th><th>Kode</th><th>Pemesan / Penerima</th><th>Item</th><th>Ongkir J&T</th><th>Total</th><th>Status</th><th>Aksi</th></tr>
+    ${f.map(o=>`<tr><td><input type="checkbox" ${AP.sel.has(o.id)?'checked':''} onchange="this.checked?AP.sel.add(${o.id}):AP.sel.delete(${o.id})"></td>
+      <td><b>${esc(o.kode)}</b><div class="mut">${tgl(o.created_at)}</div>${o.dicetak_at?'<div class="mut">🖨️ sudah dicetak</div>':''}</td>
+      <td><b>${esc(o.penerima_nama)}</b> · ${esc(o.penerima_hp)}<div class="mut">${esc(o.penerima_alamat)}, ${esc([o.penerima_kecamatan,o.penerima_kota,o.penerima_kodepos].filter(Boolean).join(', '))}</div><div class="mut">Member: ${esc(o.profiles?.nama||'-')}</div></td>
+      <td>${o.items.map(i=>`${namaItem(i)} ×${i.qty}`).join('<br>')}<div class="mut">${kgJnt(o.berat_gram)} kg</div></td>
+      <td>${esc(o.layanan)}<br>${rp(o.ongkir)}</td><td><b>${rp(o.total)}</b>${o.potongan_poin?`<div class="mut">poin −${rp(o.potongan_poin)}</div>`:''}<div class="mut">${o.metode_bayar==='transfer'?'🏦 Transfer':'▦ QRIS'}</div><div style="margin-top:3px">${chipBayar(o)}</div></td>
+      <td><span class="st ${o.status}">${o.status}</span>${o.resi?`<div class="mut">Resi: ${esc(o.resi)} · <a href="#" onclick="lacakResi('${esc(o.resi)}');return false">lacak</a></div>`:''}</td>
+      <td style="white-space:nowrap">${aksiOrder(o)}</td></tr>`).join('')}</table></div>`:'<div class="empty">Tidak ada pesanan.</div>'}`;
+  $('#ap').value = autoPrint(); $('#ap').onchange = e => { localStorage.setItem('autoPrint', e.target.value); toast('Disimpan'); };
+  $('#q').oninput = e => { AP.q = e.target.value; drawAdminPesanan(); const n=$('#q'); n.focus(); n.setSelectionRange(n.value.length,n.value.length); };
+}
+function aksiOrder(o){
+  const b = [];
+  if (o.status==='menunggu') b.push(`<button class="btn ok sm" onclick="konfirmasi(${o.id})">${o.dp_persen ? `Konfirmasi (DP ${rp(o.dp_nominal)} masuk)` : 'Konfirmasi (sudah bayar)'}</button>`);
+  if (o.status_bayar==='dp' && o.status!=='batal') b.push(`<button class="btn ok sm" onclick="pelunasanDiterima(${o.id})">✓ Pelunasan ${rp(o.total - o.dp_nominal)} diterima</button>`);
+  if (o.status==='dikonfirmasi') b.push(`<button class="btn sm" onclick="inputResi(${o.id})">Kirim (resi)</button>`);
+  if (o.status==='dikirim') b.push(o.status_bayar==='lunas' ? `<button class="btn ok sm" onclick="setStatus(${o.id},'selesai')">Selesai</button>` : `<button class="btn ok sm" disabled title="Belum lunas">Selesai (belum lunas)</button>`, `<button class="btn g sm" onclick="inputResi(${o.id})">Ubah resi</button>`);
+  if (['menunggu','dikonfirmasi','dikirim','selesai'].includes(o.status)) b.push(`<button class="btn g sm" onclick="cetakLabel([${o.id}])">🖨️</button>`);
+  b.push(`<a class="btn wa sm" target="_blank" href="https://wa.me/${String(o.penerima_hp).replace(/\D/g,'').replace(/^0/,'62')}?text=${encodeURIComponent(`Halo ${o.penerima_nama}, pesanan ${o.kode} status: ${o.status}${o.resi?`. Resi J&T: ${o.resi}`:''}`)}">WA</a>`);
+  if (o.status === 'selesai') b.push(`<button class="btn g sm" title="Tambah poin manual" onclick="poinModal('${o.member_id}','${esc(o.profiles?.nama||'').replace(/'/g,'')}','Pesanan ${o.kode}')">+Poin</button>`);
+  if (['menunggu','dikonfirmasi'].includes(o.status)) b.push(`<button class="btn g sm" onclick="batalAdmin(${o.id})">Batal</button>`);
+  return b.join(' ');
+}
+async function konfirmasi(id){
+  const o = AP.list.find(x=>x.id===id);
+  if (!confirm(o?.dp_persen ? `Pastikan DP ${rp(o.dp_nominal)} sudah masuk. Konfirmasi pesanan ${o.kode}?` : `Pastikan pembayaran ${rp(o?.total)} sudah masuk. Konfirmasi pesanan ${o?.kode}?`)) return;
+  try { ok(await sb.from('orders').update({ status:'dikonfirmasi', status_bayar: o?.dp_persen ? 'dp' : 'lunas' }).eq('id',id)); toast('Pesanan dikonfirmasi');
+    if (autoPrint()==='konfirmasi') await cetakLabel([id]); viewAdminPesanan(); } catch(e){ fail(e); }
+}
+function inputResi(id){
+  const o = AP.list.find(x=>x.id===id);
+  modal(`<h2 style="margin-top:0">Input resi J&T — ${esc(o.kode)}</h2><div class="mut">Isi setelah paket diserahkan ke J&T. Member bisa melacak resi ini di menu Pesanan Saya.</div><label>No. resi J&T</label><input id="rs" value="${esc(o.resi||'')}" placeholder="mis. JP1234567890" autocapitalize="characters">
+    <div class="row" style="margin-top:14px"><button class="btn" onclick="simpanResi(${id})">Simpan & tandai dikirim</button><button class="btn g" onclick="closeModal()">Batal</button></div>`);
+  setTimeout(()=>$('#rs')?.focus(),50);
+}
+async function simpanResi(id){
+  const resi = $('#rs').value.trim().toUpperCase().replace(/\s+/g,''); if(!resi) return toast('Isi nomor resi', true);
+  try { ok(await sb.from('orders').update({ resi, status:'dikirim' }).eq('id',id)); 
+    const o = AP.list.find(x=>x.id===id); const hp = String(o.penerima_hp).replace(/\D/g,'').replace(/^0/,'62');
+    const lunas = o.status_bayar === 'lunas', sisa = o.total - o.dp_nominal;
+    const teks = lunas ? `Halo ${o.penerima_nama}, pesanan ${o.kode} dari ${S.settings.nama_toko||'toko kami'} sudah dikirim via J&T.\nNo. resi: ${resi}\nLacak di: ${linkToko()}#/pesanan\nTerima kasih 🙏`
+      : `Halo ${o.penerima_nama}, pesanan ${o.kode} dari ${S.settings.nama_toko||'toko kami'} sudah dikemas dan resi J&T sudah terbit.\nMohon lakukan PELUNASAN sebesar ${rp(sisa)} (DP ${rp(o.dp_nominal)} sudah kami terima).\nBayar di: ${linkToko()}#/pesanan → Bayar Pelunasan\nNomor resi kami kirim setelah pelunasan diterima. Terima kasih 🙏`;
+    const wa = `https://wa.me/${hp}?text=${encodeURIComponent(teks)}`;
+    modal(`<h2 style="margin-top:0">✓ Resi tersimpan</h2><p>Status pesanan <b>${esc(o.kode)}</b> → <b>dikirim</b>. Resi: <b>${esc(resi)}</b></p>
+      ${lunas ? '' : `<p style="color:var(--err)"><b>Pesanan ini masih DP.</b> Pembeli wajib melunasi ${rp(sisa)}; nomor resi disembunyikan dari pembeli sampai pelunasan diterima.</p>`}
+      <a class="btn wa blk" style="display:block" href="${wa}" target="_blank" onclick="closeModal()">${lunas ? 'Kabari pembeli via WhatsApp' : 'Tagih pelunasan via WhatsApp'}</a>
+      <button class="btn g blk" style="margin-top:8px" onclick="closeModal()">Tutup</button>`);
+    viewAdminPesanan(); } catch(e){ fail(e); }
+}
+async function pelunasanDiterima(id){
+  const o = AP.list.find(x=>x.id===id); if (!o) return;
+  if (!confirm(`Pastikan pelunasan ${rp(o.total - o.dp_nominal)} untuk ${o.kode} sudah masuk?`)) return;
+  try { ok(await sb.from('orders').update({ status_bayar:'lunas' }).eq('id', id));
+    const hp = String(o.penerima_hp).replace(/\D/g,'').replace(/^0/,'62');
+    const teks = `Halo ${o.penerima_nama}, pelunasan pesanan ${o.kode} sudah kami terima. Terima kasih 🙏` + (o.resi ? `\nNo. resi J&T: ${o.resi}\nLacak di: ${linkToko()}#/pesanan` : '');
+    modal(`<h2 style="margin-top:0">✓ Lunas</h2><p>Pesanan <b>${esc(o.kode)}</b> sudah lunas.${o.resi ? ' Nomor resi sekarang terlihat oleh pembeli.' : ''}</p>
+      <a class="btn wa blk" style="display:block" target="_blank" href="https://wa.me/${hp}?text=${encodeURIComponent(teks)}" onclick="closeModal()">Kabari pembeli via WhatsApp</a>
+      <button class="btn g blk" style="margin-top:8px" onclick="closeModal()">Tutup</button>`);
+    viewAdminPesanan(); } catch(e){ fail(e); }
+}
+async function setStatus(id, s){ try { ok(await sb.from('orders').update({ status:s }).eq('id',id)); toast('Status: '+s); viewAdminPesanan(); } catch(e){ fail(e); } }
+async function batalAdmin(id){ if(!confirm('Batalkan pesanan? Stok akan dikembalikan.')) return; try { ok(await sb.rpc('cancel_order',{p_id:id})); toast('Dibatalkan'); viewAdminPesanan(); } catch(e){ fail(e); } }
+function cetakTerpilih(){ if(!AP.sel.size) return toast('Centang pesanan dulu', true); cetakLabel([...AP.sel]); }
+async function cetakBelum(){
+  const d = ok(await sb.from('orders').select('id').in('status',['dikonfirmasi','dikirim']).is('dicetak_at',null));
+  if (!d.length) return toast('Semua label sudah dicetak'); cetakLabel(d.map(x=>x.id));
+}
+
+/* ----- Code128-B (barcode SVG tanpa library) ----- */
+const C128 = ["212222","222122","222221","121223","121322","131222","122213","122312","132212","221213","221312","231212","112232","122132","122231","113222","123122","123221","223211","221132","221231","213212","223112","312131","311222","321122","321221","312212","322112","322211","212123","212321","232121","111323","131123","131321","112313","132113","132311","211313","231113","231311","112133","112331","132131","113123","113321","133121","313121","211331","231131","213113","213311","213131","311123","311321","331121","312113","312311","332111","314111","221411","431111","111224","111422","121124","121421","141122","141221","112214","112412","122114","122411","142112","142211","241211","221114","413111","241112","134111","111242","121142","121241","114212","124112","124211","411212","421112","421211","212141","214121","412121","111143","111341","131141","114113","114311","411113","411311","113141","114131","311141","411131","211412","211214","211232","2331112"];
+function barcode(text, h=50){
+  text = String(text).replace(/[^\x20-\x7e]/g,'');
+  const codes = [104, ...[...text].map(c=>c.charCodeAt(0)-32)];
+  const sum = codes.reduce((a,v,i)=>a + v*(i||1), 0) % 103;
+  codes.push(sum, 106);
+  let x = 10, bars = '';
+  for (const c of codes) [...C128[c]].forEach((w,i)=>{ w=+w; if(i%2===0) bars += `<rect x="${x}" y="0" width="${w}" height="${h}"/>`; x += w; });
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${x+10} ${h}" preserveAspectRatio="none" style="width:100%;height:${h}px">${bars}</svg>`;
+}
+async function cetakLabel(ids){
+  const os = ok(await sb.from('orders').select('*').in('id', ids).order('created_at'));
+  if (!os.length) return;
+  const st = S.settings;
+  const lbl = o => `<div class="lbl">
+    <div class="hd"><div class="jnt"><img src="${location.origin}/jnt-hitam.png" alt="J&amp;T EXPRESS"></div><div class="svc">${esc(o.layanan||'EZ')}</div></div>
+    ${o.resi?`<div class="bc">${barcode(o.resi,55)}<div class="bt">${esc(o.resi)}</div></div>`:`<div class="bc"><div class="noresi">RESI: ______________________</div></div>`}
+    <div class="sec"><div class="t">PENERIMA</div><div class="nm">${esc(o.penerima_nama)}</div><div>${esc(o.penerima_hp)}</div>
+      <div>${esc(o.penerima_alamat)}</div><div class="kt">${esc([o.penerima_kecamatan,o.penerima_kota].filter(Boolean).join(', ').toUpperCase())} ${esc(o.penerima_kodepos)}</div></div>
+    <div class="sec"><div class="t">PENGIRIM</div><div class="nm2">${esc(st.nama_toko)}</div><div>${esc(st.hp_toko)}</div><div>${esc(st.alamat_toko)}</div></div>
+    <div class="grid3"><div><span>Berat</span><b>${kgJnt(o.berat_gram)} kg</b></div><div><span>Ongkir</span><b>${rp(o.ongkir)}</b></div><div><span>Qty</span><b>${o.items.reduce((a,b)=>a+b.qty,0)} pcs</b></div></div>
+    <div class="sec isi"><div class="t">ISI PAKET</div>${o.items.map(i=>`${esc(namaItemTxt(i))} ×${i.qty}`).join(', ')}${o.catatan?`<div><i>Catatan: ${esc(o.catatan)}</i></div>`:''}</div>
+    <div class="ft"><div class="bc2">${barcode(o.kode,30)}</div><div class="bt">${esc(o.kode)} · ${new Date(o.created_at).toLocaleDateString('id-ID')}</div></div>
+  </div>`;
+  const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Label</title><style>
+    @page{size:100mm 150mm;margin:0}*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;font-size:10.5px;color:#000}
+    .lbl{width:100mm;height:150mm;padding:4mm;page-break-after:always;display:flex;flex-direction:column;gap:2mm;overflow:hidden}
+    .lbl:last-child{page-break-after:auto}
+    .hd{display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid #000;padding-bottom:1.5mm}
+    .jnt{font-weight:900;font-size:18px;letter-spacing:.5px}.jnt img{height:9mm;display:block}.svc{border:2px solid #000;padding:1mm 3mm;font-weight:900;font-size:16px}
+    .bc{text-align:center}.bc svg rect,.bc2 svg rect{fill:#000}.bt{text-align:center;font-weight:700;font-size:12px;letter-spacing:1px}
+    .noresi{border:1px dashed #000;padding:4mm;font-weight:700;font-size:13px}
+    .sec{border:1px solid #000;padding:1.5mm 2mm;line-height:1.35}.t{font-size:9px;font-weight:700;background:#000;color:#fff;display:inline-block;padding:0 2mm;margin-bottom:1mm}
+    .nm{font-weight:900;font-size:14px}.nm2{font-weight:700}.kt{font-weight:900;font-size:13px;margin-top:1mm}
+    .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;border:1px solid #000}.grid3 div{padding:1mm 2mm;border-right:1px solid #000}.grid3 div:last-child{border:0}
+    .grid3 span{display:block;font-size:9px}.grid3 b{font-size:12px}.isi{flex:1;overflow:hidden}
+    .ft{border-top:1px dashed #000;padding-top:1mm}.ft .bt{font-size:10px}
+  </style></head><body>${os.map(lbl).join('')}</body></html>`;
+  const fr = document.createElement('iframe'); fr.style.cssText = 'position:fixed;right:0;bottom:0;width:0;height:0;border:0';
+  document.body.appendChild(fr);
+  fr.contentDocument.open(); fr.contentDocument.write(html); fr.contentDocument.close();
+  await Promise.all([...fr.contentDocument.images].map(i=>i.complete?0:new Promise(r=>{i.onload=i.onerror=r;})));
+  setTimeout(()=>{ fr.contentWindow.focus(); fr.contentWindow.print(); setTimeout(()=>fr.remove(), 60000); }, 300);
+  await sb.from('orders').update({ dicetak_at: new Date().toISOString() }).in('id', ids);
+}
+
+/* ----- Realtime: notifikasi pesanan baru untuk admin ----- */
+function setupRealtime(){
+  if (S.rt) { sb.removeChannel(S.rt); S.rt = null; }
+  if (!isAdmin()) return;
+  S.rt = sb.channel('orders-baru').on('postgres_changes', { event:'INSERT', schema:'public', table:'orders' }, async p => {
+    toast(`🔔 Pesanan baru ${p.new.kode} — ${rp(p.new.total)}`);
+    try { const a = new AudioContext(), o = a.createOscillator(); o.frequency.value = 880; o.connect(a.destination); o.start(); o.stop(a.currentTime + 0.25); } catch {}
+    if (autoPrint()==='baru') await cetakLabel([p.new.id]);
+    if ((location.hash||'').startsWith('#/admin/pesanan')) viewAdminPesanan();
+  }).subscribe();
+}
+
+/* ================= ADMIN: PRODUK ================= */
+// perkecil foto sebelum upload (foto HP 3-8 MB → ±100-250 KB) supaya katalog ringan di HP
+function kompresFoto(file, maks){
+  return new Promise(res => {
+    if (!/^image\/(jpeg|png|webp)$/.test(file.type)) return res(file);
+    const img = new Image(), url = URL.createObjectURL(file);
+    img.onload = () => {
+      const k = Math.min(1, maks / Math.max(img.width, img.height));
+      const c = document.createElement('canvas'); c.width = Math.round(img.width*k); c.height = Math.round(img.height*k);
+      const x = c.getContext('2d'); x.fillStyle = '#fff'; x.fillRect(0,0,c.width,c.height); x.drawImage(img, 0, 0, c.width, c.height);
+      URL.revokeObjectURL(url);
+      c.toBlob(b => res(b && b.size < file.size ? b : file), 'image/jpeg', 0.82);
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); res(file); };
+    img.src = url;
+  });
+}
+async function uploadFoto(file, folder){
+  const blob = await kompresFoto(file, folder === 'iklan' ? 1200 : 900);
+  const path = `${folder}/${Date.now()}-${file.name.replace(/\.[^.]+$/,'').replace(/[^\w]/g,'_').slice(0,40)}.jpg`;
+  ok(await sb.storage.from('foto').upload(path, blob, { upsert:true, contentType: blob.type || 'image/jpeg', cacheControl: '31536000' }));
+  return sb.storage.from('foto').getPublicUrl(path).data.publicUrl;
+}
+let APR = [];
+async function viewAdminProduk(){
+  APR = ok(await sb.from('products').select('*').order('nama'));
+  const luar = APR.filter(p=>/^https?:/.test(p.foto_url||'')).length;
+  app.innerHTML = `<h1>Produk</h1>${luar?`<div class="card" style="margin-bottom:12px;display:flex;gap:10px;align-items:center;flex-wrap:wrap"><div style="flex:1;min-width:220px"><b>${luar} foto masih di penyimpanan lama.</b><div class="mut">Pindahkan sekali ke penyimpanan Cloudflare toko ini (foto produk, iklan, logo).</div></div><button class="btn" id="btnImpor" onclick="imporFoto()">Pindahkan foto</button></div>`:''}
+    <div class="toolbar"><input id="q" placeholder="Cari produk"><select id="qk" style="max-width:220px"><option value="">Semua kategori</option>${KATEGORI.map(k=>`<option>${k}</option>`).join('')}</select><button class="btn" onclick="formProduk()">+ Tambah produk</button></div>
+    <div class="tw"><table id="tb"></table></div>`;
+  const draw = (q='') => $('#tb').innerHTML = `<tr><th>Foto</th><th>Nama</th><th>Kategori</th><th>Harga</th><th>Berat</th><th>Stok</th><th>Aktif</th><th></th></tr>` +
+    APR.filter(p=>p.nama.toLowerCase().includes(q.toLowerCase()) && (!$('#qk').value || p.kategori===$('#qk').value)).map(p=>`<tr><td>${p.foto_url?`<img src="${esc(p.foto_url)}" style="width:44px;height:44px;object-fit:cover;border-radius:6px">`:'📦'}</td>
+    <td><b>${esc(p.nama)}</b></td><td>${esc(p.kategori)}</td><td style="white-space:nowrap">${satuanList(p).map(u=>`<div><span class="mut">${u.label}</span> ${rp(u.harga)}</div>`).join('')}</td><td>${p.berat_gram} g</td><td style="${p.stok<=5?'color:var(--err);font-weight:700':''}">${p.stok} pack${p.stok>=p.isi_slof?`<div class="mut">≈ ${Math.floor(p.stok/(p.isi_slof||10))} slof</div>`:''}</td><td>${p.aktif?'✅':'—'}</td>
+    <td><button class="btn g sm" onclick="formProduk(${p.id})">Edit</button></td></tr>`).join('');
+  draw(); $('#q').oninput = e => draw(e.target.value); $('#qk').onchange = () => draw($('#q').value);
+}
+async function imporFoto(){
+  const b = $('#btnImpor'); b.disabled = true; b.textContent = 'Memindahkan… (bisa 1–2 menit)';
+  try { const r = ok(await sb.importFoto()); toast(`✓ ${r.dipindah} file dipindahkan${r.gagal.length?`, ${r.gagal.length} gagal`:''}${r.sisa?` · masih ${r.sisa} file, klik sekali lagi`:''}`, r.gagal.length>0); if (r.gagal.length) console.warn(r.gagal); await loadSettings(); viewAdminProduk(); }
+  catch(e){ b.disabled = false; b.textContent = 'Pindahkan foto'; fail(e); }
+}
+function formProduk(id){
+  const p = APR.find(x=>x.id===id) || { nama:'', kategori:KATEGORI[0], deskripsi:'', harga:0, berat_gram:100, stok:0, foto_url:'', aktif:true };
+  modal(`<h2 style="margin-top:0">${id?'Edit':'Tambah'} produk</h2><form id="fp">
+    <label>Nama</label><input name="nama" value="${esc(p.nama)}" required>
+    <div class="row"><div><label>Kategori</label><select name="kategori">${[...KATEGORI, ...(p.kategori && !KATEGORI.includes(p.kategori) ? [p.kategori] : [])].map(k=>`<option ${k===p.kategori?'selected':''}>${esc(k)}</option>`).join('')}</select></div></div>
+    <div class="card" style="box-shadow:none;border:1px solid var(--bd);margin-top:10px;padding:10px 12px">
+      <b style="font-size:13px">Harga bertingkat</b> <span class="mut">— kosongkan SLOF/BALL jika tidak dijual per satuan itu</span>
+      <div class="row"><div><label>Harga per PACK (Rp)</label><input name="harga" type="number" min="0" value="${p.harga}" required></div><div></div></div>
+      <div class="row"><div><label>Harga per SLOF (Rp)</label><input name="harga_slof" type="number" min="0" value="${p.harga_slof??''}" placeholder="tidak dijual"></div><div><label>Isi 1 SLOF (pack)</label><input name="isi_slof" type="number" min="1" value="${p.isi_slof||10}"></div></div>
+      <div class="row"><div><label>Harga per BALL (Rp)</label><input name="harga_ball" type="number" min="0" value="${p.harga_ball??''}" placeholder="tidak dijual"></div><div><label>Isi 1 BALL (pack)</label><input name="isi_ball" type="number" min="1" value="${p.isi_ball||100}"></div></div>
+    </div>
+    <div class="row"><div><label>Berat per PACK (gram)</label><input name="berat_gram" type="number" min="1" value="${p.berat_gram}" required></div><div><label>Stok (dalam PACK)</label><input name="stok" type="number" value="${p.stok}" required></div></div>
+    <label>Deskripsi</label><textarea name="deskripsi" rows="3">${esc(p.deskripsi)}</textarea>
+    <label>Foto</label><input type="file" id="ff" accept="image/*">${p.foto_url?`<img src="${esc(p.foto_url)}" style="height:70px;margin-top:6px;border-radius:6px">`:''}
+    <label class="row" style="flex:none;gap:6px"><input type="checkbox" name="aktif" ${p.aktif?'checked':''} style="width:auto;flex:none"> Tampil di katalog</label>
+    <div class="row" style="margin-top:14px"><button class="btn">Simpan</button>${id?`<button type="button" class="btn err" style="flex:none" onclick="hapus('products',${id})">Hapus</button>`:''}<button type="button" class="btn g" onclick="closeModal()">Batal</button></div></form>`);
+  $('#fp').onsubmit = async e => {
+    e.preventDefault(); const b = e.target.querySelector('button'); b.disabled = true;
+    try {
+      const fd = Object.fromEntries(new FormData(e.target));
+      const row = { nama:fd.nama, kategori:fd.kategori||KATEGORI[0], deskripsi:fd.deskripsi, harga:+fd.harga, harga_slof: fd.harga_slof===''?null:+fd.harga_slof, harga_ball: fd.harga_ball===''?null:+fd.harga_ball, isi_slof:+fd.isi_slof||10, isi_ball:+fd.isi_ball||100, berat_gram:+fd.berat_gram, stok:+fd.stok, aktif:!!fd.aktif, foto_url:p.foto_url };
+      const f = $('#ff').files[0]; if (f) row.foto_url = await uploadFoto(f, 'produk');
+      ok(id ? await sb.from('products').update(row).eq('id',id) : await sb.from('products').insert(row));
+      closeModal(); toast('Tersimpan'); route();
+    } catch(er){ fail(er); b.disabled = false; }
+  };
+}
+async function hapus(tbl, id){
+  if (!confirm('Hapus data ini? (Jika sudah dipakai di pesanan/penukaran, nonaktifkan saja)')) return;
+  try { ok(await sb.from(tbl).delete().eq('id',id)); closeModal(); toast('Dihapus'); route(); } catch(e){ fail(e); }
+}
+
+/* ================= ADMIN: MEMBER & POIN MANUAL ================= */
+let AM = [];
+async function viewAdminMember(){
+  AM = ok(await sb.from('profiles').select('*').order('created_at',{ascending:false}));
+  app.innerHTML = `<h1>Member & Poin</h1><div class="toolbar"><input id="q" placeholder="Cari nama / HP / email"></div><div class="tw"><table id="tb"></table></div>`;
+  const draw = (q='') => $('#tb').innerHTML = `<tr><th>Nama</th><th>No. HP</th><th>Email</th><th>Alamat</th><th>Role</th><th>Poin</th><th>Akses DP</th><th>Daftar</th><th></th></tr>` +
+    AM.filter(m=>(m.nama+m.no_hp+(m.email||'')).toLowerCase().includes(q.toLowerCase())).map(m=>`<tr><td><b>${esc(m.nama||'(tanpa nama)')}</b></td><td>${esc(m.no_hp)||'<span class="mut">-</span>'}</td><td style="word-break:break-all">${esc(m.email||'')}</td>
+    <td class="mut">${esc([m.alamat,m.kelurahan,m.kota].filter(Boolean).join(', '))}${m.kodepos?' '+esc(m.kodepos):''}</td><td>${m.role==='admin'?'<span class="st dikonfirmasi">admin</span>':'member'}</td>
+    <td><b style="font-size:16px">${m.poin.toLocaleString('id-ID')}</b></td>
+    <td>${m.role==='admin' ? '-' : `<label style="display:flex;align-items:center;gap:6px;margin:0;cursor:pointer;font-weight:500;white-space:nowrap"><input type="checkbox" style="width:18px;height:18px" ${m.boleh_dp?'checked':''} onchange="aturDp('${m.id}',this)"> ${m.boleh_dp?'Boleh DP':'Tidak'}</label>`}</td>
+    <td class="mut">${tgl(m.created_at)}</td>
+    <td style="white-space:nowrap"><button class="btn sm" onclick="poinModal('${m.id}','${esc(m.nama).replace(/'/g,'')}')">± Poin</button> <button class="btn g sm" onclick="riwayatPoin('${m.id}','${esc(m.nama).replace(/'/g,'')}')">Riwayat</button>${m.role!=='admin'?` <button class="btn g sm" onclick="resetPwMember('${m.id}')">🔑 Reset PW</button>`:''}</td></tr>`).join('');
+  draw(); $('#q').oninput = e => draw(e.target.value);
+}
+async function aturDp(id, el){
+  const v = el.checked; el.disabled = true;
+  try { ok(await sb.from('profiles').update({ boleh_dp: v }).eq('id', id));
+    const m = AM.find(x=>x.id===id); if (m) m.boleh_dp = v;
+    el.parentElement.lastChild.textContent = v ? ' Boleh DP' : ' Tidak';
+    toast(v ? `✓ ${m?.nama||'Member'} sekarang bisa bayar DP` : `DP dinonaktifkan untuk ${m?.nama||'member'}`);
+  } catch(e){ el.checked = !v; fail(e); }
+  el.disabled = false;
+}
+async function resetPwMember(id){
+  const m = AM.find(x=>x.id===id); if (!m) return;
+  if (!confirm(`Reset password ${m.nama||'member ini'}? Password lama tidak bisa dipakai lagi.`)) return;
+  try {
+    const pw = ok(await sb.rpc('admin_reset_password', { p_member:id }));
+    const email = ok(await sb.rpc('admin_email_member', { p_member:id })) || '';
+    const hp = String(m.no_hp||'').replace(/\D/g,'').replace(/^0/,'62');
+    const pesan = `Halo ${m.nama||''}, password akun ${S.settings.nama_toko||'toko'} Anda sudah di-reset.\nEmail: ${email}\nPassword sementara: ${pw}\n\nSilakan masuk di ${linkToko()}#/login lalu buat password baru. Jangan bagikan password ini ke siapa pun.`;
+    modal(`<h2 style="margin-top:0">✓ Password di-reset</h2>
+      <p>Member: <b>${esc(m.nama||'-')}</b><br>Email: <b>${esc(email)}</b></p>
+      <div class="card" style="box-shadow:none;border:1px dashed var(--pri);text-align:center;font-size:22px;font-weight:800;letter-spacing:2px;font-family:monospace">${esc(pw)}</div>
+      <p class="mut">Password sementara ini hanya tampil sekali. Saat member login, ia langsung diminta membuat password baru.</p>
+      ${hp ? `<a class="btn wa blk" style="display:block" target="_blank" href="https://wa.me/${hp}?text=${encodeURIComponent(pesan)}">Kirim ke WhatsApp member</a>` : '<p class="mut">Member belum mengisi No. HP — sampaikan password secara langsung.</p>'}
+      <button class="btn g blk" style="margin-top:8px" onclick="navigator.clipboard?.writeText(${JSON.stringify(pw)});toast('Disalin')">Salin password</button>
+      <button class="btn g blk" style="margin-top:8px" onclick="closeModal()">Tutup</button>`);
+  } catch(e){ fail(e); }
+}
+function poinModal(id, nama, ket=''){
+  modal(`<h2 style="margin-top:0">Poin manual — ${esc(nama)}</h2>
+    <div class="row"><button type="button" class="btn ok" id="bp" onclick="POIN_SIGN=1;this.className='btn ok';$('#bm').className='btn g'">+ Tambah</button><button type="button" class="btn g" id="bm" onclick="POIN_SIGN=-1;this.className='btn err';$('#bp').className='btn g'">− Kurangi</button></div>
+    <label>Jumlah poin</label><input id="pj" type="number" min="1" placeholder="mis. 10">
+    <label>Keterangan</label><input id="pk" value="${esc(ket)}" placeholder="mis. Belanja 5 slop / bonus event">
+    <div class="row" style="margin-top:14px"><button class="btn" onclick="simpanPoin('${id}')">Simpan</button><button class="btn g" onclick="closeModal()">Batal</button></div>`);
+  window.POIN_SIGN = 1; setTimeout(()=>$('#pj')?.focus(),50);
+}
+async function simpanPoin(id){
+  const j = parseInt($('#pj').value,10); if(!j||j<1) return toast('Isi jumlah poin', true);
+  try { const saldo = ok(await sb.rpc('admin_adjust_points', { p_member:id, p_delta: j*POIN_SIGN, p_ket: $('#pk').value.trim() || (POIN_SIGN>0?'Tambah poin':'Kurangi poin') }));
+    closeModal(); toast(`Poin tersimpan. Saldo: ${saldo}`); if((location.hash||'').startsWith('#/admin/member')) viewAdminMember(); } catch(e){ fail(e); }
+}
+async function riwayatPoin(id, nama){
+  const d = ok(await sb.from('point_logs').select('*').eq('member_id',id).order('created_at',{ascending:false}).limit(100));
+  modal(`<h2 style="margin-top:0">Riwayat poin — ${esc(nama)}</h2>${d.length?`<div class="tw"><table><tr><th>Tanggal</th><th>Keterangan</th><th>Poin</th><th>Saldo</th></tr>
+    ${d.map(l=>`<tr><td>${tgl(l.created_at)}</td><td>${esc(l.keterangan)}</td><td style="color:${l.delta>0?'var(--ok)':'var(--err)'};font-weight:700">${l.delta>0?'+':''}${l.delta}</td><td>${l.saldo_akhir}</td></tr>`).join('')}</table></div>`:'<p class="mut">Belum ada riwayat.</p>'}
+    <button class="btn g" style="margin-top:12px" onclick="closeModal()">Tutup</button>`);
+}
+
+/* ================= ADMIN: HADIAH ================= */
+let AH = [];
+async function viewAdminHadiah(){
+  AH = ok(await sb.from('rewards').select('*').order('poin'));
+  const st = S.settings;
+  app.innerHTML = `<h1>Katalog Hadiah</h1>
+    <div class="card" style="margin-bottom:14px"><h2 style="margin-top:0">Program tukar poin jadi potongan harga</h2>
+      <p class="mut">Bila aktif, member bisa centang "Tukar poin" saat checkout. Semua poin otomatis dipakai sebagai potongan harga. <b>1 poin = Rp1</b> (100 poin = Rp100). Hanya untuk belanja minimal <b>${rp(+st.poin_min_belanja||100000)}</b>.</p>
+      <form id="fpp" class="row" style="align-items:flex-end">
+        <label style="flex:none;display:flex;gap:6px;align-items:center;margin:0 0 10px"><input type="checkbox" name="aktif" style="width:18px;height:18px" ${st.poin_potongan_aktif==='1'?'checked':''}> Aktifkan</label>
+        <button class="btn" style="flex:none">Simpan</button></form>
+</div>
+    <div class="toolbar"><button class="btn" onclick="formHadiah()">+ Tambah hadiah</button></div>
+    ${AH.length?`<div class="tw"><table><tr><th>Foto</th><th>Nama</th><th>Poin</th><th>Stok</th><th>Aktif</th><th></th></tr>
+    ${AH.map(r=>`<tr><td>${r.foto_url?`<img src="${esc(r.foto_url)}" style="width:44px;height:44px;object-fit:cover;border-radius:6px">`:'🎁'}</td><td><b>${esc(r.nama)}</b><div class="mut">${esc(r.deskripsi)}</div></td>
+      <td>${r.poin}</td><td>${r.stok}</td><td>${r.aktif?'✅':'—'}</td><td><button class="btn g sm" onclick="formHadiah(${r.id})">Edit</button></td></tr>`).join('')}</table></div>`:'<div class="empty">Belum ada hadiah.</div>'}`;
+  $('#fpp').onsubmit = async e => { e.preventDefault();
+    const aktif = e.target.aktif.checked;
+    try { ok(await sb.from('settings').upsert([{ key:'poin_potongan_aktif', value: aktif?'1':'0' }])); await loadSettings();
+      toast(aktif ? '✓ Program tukar poin aktif' : 'Program tukar poin dinonaktifkan'); } catch(er){ fail(er); } };
+}
+function formHadiah(id){
+  const r = AH.find(x=>x.id===id) || { nama:'', deskripsi:'', poin:100, stok:10, foto_url:'', aktif:true };
+  modal(`<h2 style="margin-top:0">${id?'Edit':'Tambah'} hadiah</h2><form id="fh">
+    <label>Nama hadiah</label><input name="nama" value="${esc(r.nama)}" required>
+    <div class="row"><div><label>Poin dibutuhkan</label><input name="poin" type="number" min="1" value="${r.poin}" required></div><div><label>Stok</label><input name="stok" type="number" min="0" value="${r.stok}" required></div></div>
+    <label>Deskripsi</label><input name="deskripsi" value="${esc(r.deskripsi)}">
+    <label>Foto</label><input type="file" id="ff" accept="image/*">
+    <label class="row" style="flex:none;gap:6px"><input type="checkbox" name="aktif" ${r.aktif?'checked':''} style="width:auto;flex:none"> Aktif</label>
+    <div class="row" style="margin-top:14px"><button class="btn">Simpan</button>${id?`<button type="button" class="btn err" style="flex:none" onclick="hapus('rewards',${id})">Hapus</button>`:''}<button type="button" class="btn g" onclick="closeModal()">Batal</button></div></form>`);
+  $('#fh').onsubmit = async e => {
+    e.preventDefault(); const b = e.target.querySelector('button'); b.disabled = true;
+    try { const fd = Object.fromEntries(new FormData(e.target));
+      const row = { nama:fd.nama, deskripsi:fd.deskripsi, poin:+fd.poin, stok:+fd.stok, aktif:!!fd.aktif, foto_url:r.foto_url };
+      const f = $('#ff').files[0]; if (f) row.foto_url = await uploadFoto(f, 'hadiah');
+      ok(id ? await sb.from('rewards').update(row).eq('id',id) : await sb.from('rewards').insert(row));
+      closeModal(); toast('Tersimpan'); viewAdminHadiah(); } catch(er){ fail(er); b.disabled = false; }
+  };
+}
+
+/* ================= ADMIN: PENUKARAN ================= */
+async function viewAdminPenukaran(){
+  const d = ok(await sb.from('redemptions').select('*, profiles(nama,no_hp)').order('created_at',{ascending:false}).limit(300));
+  app.innerHTML = `<h1>Penukaran Poin</h1>${d.length?`<div class="tw"><table><tr><th>Tanggal</th><th>Member</th><th>Hadiah</th><th>Poin</th><th>Status</th><th></th></tr>
+    ${d.map(r=>`<tr><td>${tgl(r.created_at)}</td><td><b>${esc(r.profiles?.nama)}</b><div class="mut">${esc(r.profiles?.no_hp)}</div></td><td>${esc(r.reward_nama)}</td><td>${r.poin}</td>
+      <td><span class="st ${r.status}">${r.status}</span>${r.catatan_admin?`<div class="mut">${esc(r.catatan_admin)}</div>`:''}</td>
+      <td style="white-space:nowrap">${r.status==='menunggu'?`<button class="btn ok sm" onclick="prosesRed(${r.id},'disetujui')">Setujui</button> <button class="btn err sm" onclick="prosesRed(${r.id},'ditolak')">Tolak</button>`:''}</td></tr>`).join('')}</table></div>`:'<div class="empty">Belum ada penukaran.</div>'}`;
+}
+async function prosesRed(id, s){
+  const cat = prompt(s==='ditolak' ? 'Alasan penolakan (poin dikembalikan):' : 'Catatan (opsional, mis. diambil di toko):', '') ;
+  if (cat === null) return;
+  try { ok(await sb.rpc('admin_process_redemption', { p_id:id, p_status:s, p_catatan:cat })); toast('Diproses'); viewAdminPenukaran(); } catch(e){ fail(e); }
+}
+
+/* ================= IKLAN POPUP ================= */
+const hariIni = () => new Date().toLocaleDateString('sv-SE', { timeZone:'Asia/Jakarta' }); // YYYY-MM-DD
+async function tampilkanPopup(){
+  if (isAdmin() || (location.hash||'').startsWith('#/admin')) return;
+  if (sessionStorage.getItem('popupDitutup')) return;
+  const { data } = await sb.from('popups').select('*').eq('aktif', true).eq('posisi','popup').order('urutan');
+  const t = hariIni();
+  const list = (data||[]).filter(p => (!p.mulai || p.mulai <= t) && (!p.selesai || p.selesai >= t));
+  if (list.length) popupKe(list, 0);
+}
+function popupKe(list, i){
+  $('#popIk')?.remove();
+  if (i >= list.length) { sessionStorage.setItem('popupDitutup', '1'); return; }
+  const p = list[i];
+  const el = document.createElement('div'); el.className = 'popik'; el.id = 'popIk';
+  el.innerHTML = `<div class="box">
+      <button class="x" aria-label="Tutup">✕</button>
+      ${isVideo(p.gambar_url) ? `<video class="md" src="${esc(p.gambar_url)}" autoplay loop playsinline ${p.link?'style="cursor:pointer"':''}></video><button class="snd" aria-label="Suara">🔊</button>` : `<img class="md" src="${esc(p.gambar_url)}" alt="${esc(p.judul)}" ${p.link?'style="cursor:pointer"':''}>`}
+      ${p.teks_tombol ? `<button class="cta">${esc(p.teks_tombol)}</button>` : ''}
+      ${list.length>1 ? `<div class="dots">${list.map((_,k)=>`<span class="${k===i?'on':''}"></span>`).join('')}</div>` : ''}
+    </div>`;
+  el.querySelector('.x').onclick = () => popupKe(list, i+1);
+  el.onclick = e => { if (e.target === el) popupKe(list, i+1); };
+  const buka = () => { if (!p.link) return; sessionStorage.setItem('popupDitutup','1'); el.remove(); bukaLinkIklan(p.link); };
+  el.querySelector('.md').onclick = buka; el.querySelector('.cta')?.addEventListener('click', buka);
+  el.querySelector('.snd')?.addEventListener('click', ev => { ev.stopPropagation(); const v = el.querySelector('video'); v.muted = !v.muted; ev.target.textContent = v.muted ? '🔇' : '🔊'; if (!v.muted) v.play(); });
+  document.body.appendChild(el);
+  // suara selalu dicoba menyala; jika browser memblokir (belum ada sentuhan), video diputar senyap
+  // lalu suara otomatis menyala pada sentuhan/klik pertama di mana saja.
+  const v = el.querySelector('video');
+  if (v) {
+    v.muted = false; v.volume = 1;
+    v.play().catch(() => {
+      v.muted = true; v.play().catch(()=>{}); el.querySelector('.snd').textContent = '🔇';
+      const nyalakan = () => { if (!document.body.contains(v)) return; v.muted = false; v.play().catch(()=>{}); el.querySelector('.snd').textContent = '🔊'; };
+      ['pointerdown','touchstart','keydown'].forEach(t => document.addEventListener(t, nyalakan, { once:true, capture:true }));
+    });
+  }
+}
+async function bukaLinkIklan(link){
+  const m = link.match(/^produk:(\d+)$/);
+  if (m) {
+    const id = +m[1];
+    if (!KAT.list.some(x=>x.id===id)) { const { data } = await sb.from('products').select('*').eq('id', id).maybeSingle(); if (data) KAT.list.push(data); }
+    if (!(location.hash||'#/katalog').startsWith('#/katalog')) location.hash = '#/katalog';
+    setTimeout(()=>detailProduk(id), 350);
+  } else if (/^https?:\/\//.test(link)) window.open(link, '_blank');
+  else location.hash = link;
+}
+
+function barisHtml(){
+  const ads = KAT.ads || [];
+  const no = String(S.settings.wa_toko||'').replace(/\D/g,'').replace(/^0/,'62');
+  const wa = `https://wa.me/${no}?text=${encodeURIComponent('Halo, saya mau pasang iklan baris di ' + (S.settings.nama_toko||'toko'))}`;
+  const SLOT = 3; // jumlah minimal kotak; slot kosong tampil sebagai "space disewakan"
+  const kosong = Math.max(SLOT - ads.length, 0);
+  const items = ads.map((a,i)=>`<div class="it" ${isVideo(a.gambar_url)?'':`style="background-image:url('${esc(a.gambar_url)}')"`} title="${esc(a.judul)}" onclick="${a.link?`bukaLinkIklan(KAT.ads[${i}].link)`:''}">${isVideo(a.gambar_url)?`<video src="${esc(a.gambar_url)}" autoplay muted loop playsinline preload="metadata"></video>`:''}</div>`).join('')
+    + Array.from({length:kosong}, ()=>`<a class="it ph" href="${wa}" target="_blank">📢 SPACE IKLAN DISEWAKAN<small>Hubungi toko untuk pasang iklan</small></a>`).join('');
+  return `<div class="baris"><div class="hd">${ads.length ? 'Promo Spesial' : 'Iklan Baris (space disewakan)'}</div>
+    <button class="nv l" onclick="geserBaris(-1)" aria-label="Sebelumnya">‹</button><button class="nv r" onclick="geserBaris(1)" aria-label="Berikutnya">›</button>
+    <div class="trk" id="trk">${items}</div></div>`;
+}
+function geserBaris(d){
+  const t = $('#trk'); if (!t) return; const w = t.firstElementChild?.offsetWidth + 10 || t.clientWidth;
+  if (d > 0 && t.scrollLeft + t.clientWidth >= t.scrollWidth - 5) t.scrollLeft = 0;
+  else if (d < 0 && t.scrollLeft <= 5) t.scrollLeft = t.scrollWidth;
+  else t.scrollLeft += d * w;
+}
+let BARIS_T = null;
+function jalankanBaris(){
+  clearInterval(BARIS_T); const t = $('#trk'); if (!t || t.scrollWidth <= t.clientWidth + 5) return;
+  let jeda = false; ['mouseenter','touchstart'].forEach(ev=>t.addEventListener(ev,()=>jeda=true,{passive:true}));
+  ['mouseleave','touchend'].forEach(ev=>t.addEventListener(ev,()=>setTimeout(()=>jeda=false,2500),{passive:true}));
+  BARIS_T = setInterval(()=>{ if (!document.body.contains(t)) return clearInterval(BARIS_T); if (!jeda) geserBaris(1); }, 3500);
+}
+
+const MAKS_VIDEO_MB = 20;
+const isVideo = u => /\.(mp4|webm|mov)(\?|#|$)/i.test(String(u||''));
+async function uploadVideo(file, folder){
+  const ext = (file.type === 'video/webm') ? 'webm' : 'mp4';
+  const path = `${folder}/${Date.now()}-${file.name.replace(/\.[^.]+$/,'').replace(/[^\w]/g,'_').slice(0,40)}.${ext}`;
+  ok(await sb.storage.from('foto').upload(path, file, { upsert:true, contentType: file.type || 'video/mp4', cacheControl: '31536000' }));
+  return sb.storage.from('foto').getPublicUrl(path).data.publicUrl;
+}
+let AI = [], AI_TAB = 'popup';
+async function viewAdminIklan(){
+  AI = ok(await sb.from('popups').select('*').eq('posisi', AI_TAB).order('urutan').order('created_at',{ascending:false}));
+  const t = hariIni();
+  const st = p => !p.aktif ? '<span class="st batal">nonaktif</span>' : (p.mulai && p.mulai > t) ? '<span class="st menunggu">terjadwal</span>' : (p.selesai && p.selesai < t) ? '<span class="st batal">berakhir</span>' : '<span class="st selesai">tayang</span>';
+  const tab = (v, t) => `<span class="chip ${AI_TAB===v?'on':''}" style="flex:none" onclick="AI_TAB='${v}';viewAdminIklan()">${t}</span>`;
+  app.innerHTML = `<h1>Iklan</h1>
+    <div class="row" style="flex:none;gap:6px;margin-bottom:10px">${tab('popup','1. Pop Up')}${tab('baris','2. Iklan Baris')}</div>
+    <p class="mut">${AI_TAB==='popup' ? 'Pop Up muncul saat pengunjung membuka web (sekali per kunjungan) dan hilang saat tombol ✕ diklik. Beberapa iklan tayang ditampilkan bergantian sesuai urutan.' : 'Iklan Baris tampil di beranda (di bawah kategori) dan bergeser otomatis kanan–kiri. Jika belum ada iklan, tampil kotak "Space iklan disewakan".'}</p>
+    <div class="toolbar"><button class="btn" onclick="formIklan()">+ Tambah ${AI_TAB==='popup'?'Pop Up':'Iklan Baris'}</button>${AI_TAB==='popup'?`<button class="btn o" onclick="sessionStorage.removeItem('popupDitutup');pratinjauIklan()">👁 Pratinjau pop up tayang</button>`:`<a class="btn o" href="#/katalog">👁 Lihat di beranda</a>`}</div>
+    ${AI.length?`<div class="tw"><table><tr><th>Gambar</th><th>Judul</th><th>Klik menuju</th><th>Periode</th><th>Urutan</th><th>Status</th><th></th></tr>
+    ${AI.map(p=>`<tr><td>${isVideo(p.gambar_url)?`<video src="${esc(p.gambar_url)}#t=0.5" muted preload="metadata" style="width:60px;height:80px;object-fit:cover;border-radius:4px;background:#000"></video><div class="mut">🎬 video</div>`:`<img src="${esc(p.gambar_url)}" style="width:60px;height:80px;object-fit:cover;border-radius:4px">`}</td>
+      <td><b>${esc(p.judul||'-')}</b>${p.teks_tombol?`<div class="mut">Tombol: ${esc(p.teks_tombol)}</div>`:''}</td>
+      <td class="mut">${p.link?.startsWith('produk:') ? 'Halaman produk' : esc(p.link||'-')}</td><td class="mut">${p.mulai||'…'} s/d ${p.selesai||'…'}</td><td>${p.urutan}</td><td>${st(p)}</td>
+      <td style="white-space:nowrap"><button class="btn g sm" onclick="formIklan(${p.id})">Edit</button> <button class="btn g sm" onclick="togIklan(${p.id},${!p.aktif})">${p.aktif?'Matikan':'Aktifkan'}</button></td></tr>`).join('')}</table></div>`:'<div class="empty">Belum ada iklan. Klik "+ Tambah iklan".</div>'}`;
+}
+async function pratinjauIklan(){
+  const t = hariIni();
+  const list = AI.filter(p => p.aktif && (!p.mulai || p.mulai <= t) && (!p.selesai || p.selesai >= t));
+  if (!list.length) return toast('Tidak ada iklan yang sedang tayang', true);
+  popupKe(list, 0); sessionStorage.removeItem('popupDitutup');
+}
+async function togIklan(id, v){ try { ok(await sb.from('popups').update({ aktif:v }).eq('id', id)); viewAdminIklan(); } catch(e){ fail(e); } }
+async function formIklan(id){
+  const p = AI.find(x=>x.id===id) || { judul:'', gambar_url:'', link:'', teks_tombol:'', aktif:true, mulai:'', selesai:'', urutan:0 };
+  const prods = ok(await sb.from('products').select('id,nama').order('nama'));
+  const jenis = p.link?.startsWith('produk:') ? 'produk' : p.link ? 'url' : '';
+  modal(`<h2 style="margin-top:0">${id?'Edit':'Tambah'} ${AI_TAB==='popup'?'Pop Up':'Iklan Baris'}</h2><form id="fi">
+    <label>Judul (untuk catatan admin)</label><input name="judul" value="${esc(p.judul)}" placeholder="mis. Promo Gajian">
+    <label>Gambar atau video MP4 ${id?'(kosongkan jika tidak diganti)':''}</label><input type="file" id="fg" accept="image/*,video/mp4,video/webm" ${id?'':'required'}>
+    <div class="mut">${AI_TAB==='popup' ? 'Gambar/video tegak (rasio 3:4 atau 9:16).' : 'Gambar/video mendatar rasio 16:7 (mis. 1200×525 px).'} Video MP4 maks. ${MAKS_VIDEO_MB} MB, sebaiknya 5–15 detik — diputar otomatis tanpa suara & berulang.</div>
+    <div id="pvw" style="margin-top:6px">${p.gambar_url ? (isVideo(p.gambar_url) ? `<video src="${esc(p.gambar_url)}" muted autoplay loop playsinline style="max-height:160px;border-radius:6px"></video>` : `<img src="${esc(p.gambar_url)}" style="max-height:160px;border-radius:6px">`) : ''}</div>
+    <label>Saat iklan diklik, buka</label>
+    <select id="lj"><option value="">Tidak ada (hanya gambar)</option><option value="produk" ${jenis==='produk'?'selected':''}>Halaman produk</option><option value="url" ${jenis==='url'?'selected':''}>Link web / WhatsApp</option></select>
+    <select id="lp" style="margin-top:6px;${jenis==='produk'?'':'display:none'}">${prods.map(x=>`<option value="${x.id}" ${p.link==='produk:'+x.id?'selected':''}>${esc(x.nama)}</option>`).join('')}</select>
+    <input id="lu" style="margin-top:6px;${jenis==='url'?'':'display:none'}" placeholder="https://..." value="${jenis==='url'?esc(p.link):''}">
+    <label>Teks tombol (opsional)</label><input name="teks_tombol" value="${esc(p.teks_tombol)}" placeholder="mis. KLAIM SEKARANG">
+    <div class="row"><div><label>Mulai tayang</label><input name="mulai" type="date" value="${p.mulai||''}"></div><div><label>Selesai tayang</label><input name="selesai" type="date" value="${p.selesai||''}"></div></div>
+    <div class="row"><div><label>Urutan tampil</label><input name="urutan" type="number" value="${p.urutan}"></div>
+      <div><label class="row" style="flex:none;gap:6px;margin-top:30px"><input type="checkbox" name="aktif" ${p.aktif?'checked':''} style="width:auto;flex:none"> Aktif</label></div></div>
+    <div class="row" style="margin-top:14px"><button class="btn">Simpan</button>${id?`<button type="button" class="btn err" style="flex:none" onclick="hapus('popups',${id})">Hapus</button>`:''}<button type="button" class="btn g" onclick="closeModal()">Batal</button></div></form>`);
+  $('#lj').onchange = e => { $('#lp').style.display = e.target.value==='produk'?'':'none'; $('#lu').style.display = e.target.value==='url'?'':'none'; };
+  $('#fg').onchange = e => { const f = e.target.files[0]; if (!f) return;
+    if (f.type.startsWith('video/') && f.size > MAKS_VIDEO_MB*1024*1024) { toast(`Video ${(f.size/1048576).toFixed(1)} MB — maksimal ${MAKS_VIDEO_MB} MB. Kompres dulu (mis. pakai CapCut, resolusi 720p).`, true); e.target.value=''; return; }
+    const u = URL.createObjectURL(f);
+    $('#pvw').innerHTML = f.type.startsWith('video/') ? `<video src="${u}" muted autoplay loop playsinline style="max-height:160px;border-radius:6px"></video><div class="mut">🎬 ${(f.size/1048576).toFixed(1)} MB</div>` : `<img src="${u}" style="max-height:160px;border-radius:6px">`; };
+  $('#fi').onsubmit = async e => {
+    e.preventDefault(); const b = e.target.querySelector('button'); b.disabled = true;
+    try {
+      const fd = Object.fromEntries(new FormData(e.target)); const j = $('#lj').value;
+      let link = j==='produk' ? 'produk:'+$('#lp').value : j==='url' ? $('#lu').value.trim() : '';
+      if (j==='url' && link && !/^https?:\/\//.test(link)) link = 'https://' + link;
+      const row = { posisi:AI_TAB, judul:fd.judul, teks_tombol:fd.teks_tombol, link, mulai:fd.mulai||null, selesai:fd.selesai||null, urutan:+fd.urutan||0, aktif:!!fd.aktif, gambar_url:p.gambar_url };
+      const f = $('#fg').files[0]; if (f) { b.textContent = f.type.startsWith('video/') ? 'Mengupload video…' : 'Menyimpan…'; row.gambar_url = f.type.startsWith('video/') ? await uploadVideo(f, 'iklan') : await uploadFoto(f, 'iklan'); }
+      ok(id ? await sb.from('popups').update(row).eq('id',id) : await sb.from('popups').insert(row));
+      closeModal(); toast('Iklan tersimpan'); viewAdminIklan();
+    } catch(er){ fail(er); b.disabled = false; }
+  };
+}
+
+/* ================= KOORDINAT TOKO ================= */
+const okKoor = (la, lo) => isFinite(la) && isFinite(lo) && Math.abs(la) <= 90 && Math.abs(lo) <= 180 && !(la == 0 && lo == 0);
+function lokasiToko(){
+  const la = parseFloat(S.settings.toko_lat), lo = parseFloat(S.settings.toko_lng);
+  return okKoor(la, lo) ? `https://www.google.com/maps?q=${la},${lo}` : '';
+}
+function pasangKoordinat(){
+  const upd = () => {
+    const la = parseFloat($('#tlat').value), lo = parseFloat($('#tlng').value), ok_ = okKoor(la, lo);
+    $('#tbuka').href = ok_ ? `https://www.google.com/maps?q=${la},${lo}` : '#';
+    $('#tbuka').style.opacity = ok_ ? 1 : .5;
+    $('#tpeta').innerHTML = ok_ ? `<iframe title="Peta toko" style="width:100%;height:220px;border:1px solid var(--bd);border-radius:6px" loading="lazy"
+      src="https://www.openstreetmap.org/export/embed.html?bbox=${lo-0.004},${la-0.003},${lo+0.004},${la+0.003}&layer=mapnik&marker=${la},${lo}"></iframe>` : '';
+  };
+  $('#tlat').oninput = upd; $('#tlng').oninput = upd;
+  $('#tgm').oninput = e => {
+    const t = decodeURIComponent(e.target.value);
+    const m = t.match(/@(-?\d+\.\d+),\s*(-?\d+\.\d+)/) || t.match(/[?&](?:q|ll|query)=(-?\d+\.\d+),\s*(-?\d+\.\d+)/) || t.match(/!3d(-?\d+\.\d+)!4d(-?\d+\.\d+)/) || t.match(/(-?\d{1,2}\.\d{3,})\s*,\s*(-?\d{1,3}\.\d{3,})/);
+    if (m) { $('#tlat').value = (+m[1]).toFixed(6); $('#tlng').value = (+m[2]).toFixed(6); upd(); toast('Koordinat terisi — klik Simpan pengaturan'); }
+    else if (/maps\.app\.goo\.gl|goo\.gl\/maps/.test(t)) toast('Link pendek tidak berisi koordinat. Buka linknya, lalu salin angka koordinat (tekan lama titik di peta).', true);
+  };
+  upd();
+}
+function ambilGps(){
+  if (!navigator.geolocation) return toast('Browser tidak mendukung GPS', true);
+  toast('Mengambil lokasi…');
+  navigator.geolocation.getCurrentPosition(p => {
+    $('#tlat').value = p.coords.latitude.toFixed(6); $('#tlng').value = p.coords.longitude.toFixed(6);
+    $('#tlat').dispatchEvent(new Event('input')); toast(`Lokasi didapat (akurasi ±${Math.round(p.coords.accuracy)} m) — klik Simpan pengaturan`);
+  }, e => toast(e.code === 1 ? 'Izin lokasi ditolak. Izinkan akses lokasi di browser.' : 'Gagal ambil lokasi: ' + e.message, true), { enableHighAccuracy:true, timeout:15000 });
+}
+
+/* ================= ADMIN: PENGATURAN + TARIF MANUAL ================= */
+async function viewAdminPengaturan(){
+  await loadSettings();
+  const tarif = ok(await sb.from('tarif_manual').select('*').order('kota'));
+  const api = await cekOngkirApi();
+  const s = S.settings;
+  app.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><h1>Pengaturan</h1><button type="button" class="btn g sm" id="tarifTgl" onclick="toggleTarif()">${localStorage.getItem('tarifTampil')==='1'?'Sembunyikan':'Tampilkan'} tarif manual J&T</button></div><div class="two"><div class="card"><h2 style="margin-top:0">Toko & pengirim (label J&T)</h2><form id="fs">
+    <label>Nama toko</label><input name="nama_toko" value="${esc(s.nama_toko)}">
+    <label>Link pendek toko (untuk pesan WA)</label><input name="link_pendek" value="${esc(s.link_pendek||'')}" placeholder="kosong = alamat web ini">
+    <label>Slogan banner beranda</label><input name="slogan" value="${esc(s.slogan||'Lengkap, murah, ramah.')}" maxlength="80" placeholder="mis. Lengkap, murah, ramah.">
+    <label>No. WhatsApp toko (penerima pesanan)</label><input name="wa_toko" value="${esc(s.wa_toko)}" placeholder="628xxxx" inputmode="numeric" pattern="[0-9]*" oninput="this.value=this.value.replace(/[^0-9]/g,'')">
+    <label>No. HP pengirim (di label)</label><input name="hp_toko" value="${esc(s.hp_toko)}" inputmode="numeric" pattern="[0-9]*" oninput="this.value=this.value.replace(/[^0-9]/g,'')">
+    <label>Alamat pengirim</label><textarea name="alamat_toko" rows="2">${esc(s.alamat_toko)}</textarea>
+    <label>Titik koordinat toko</label>
+    <div class="row"><input name="toko_lat" id="tlat" placeholder="Latitude, mis. -7.2756" value="${esc(s.toko_lat||'')}" inputmode="decimal"><input name="toko_lng" id="tlng" placeholder="Longitude, mis. 112.5913" value="${esc(s.toko_lng||'')}" inputmode="decimal"></div>
+    <input id="tgm" placeholder="atau tempel link Google Maps / koordinat '-7.27, 112.59' di sini" style="margin-top:6px">
+    <div class="row" style="margin-top:6px"><button type="button" class="btn o" onclick="ambilGps()">📍 Pakai lokasi saya sekarang (GPS)</button><a class="btn g" id="tbuka" target="_blank" style="text-align:center">🗺 Cek di Google Maps</a></div>
+    <div id="tpeta" style="margin-top:8px"></div>
+    <div class="mut">Tips: buka Google Maps → tekan lama titik toko → salin koordinat → tempel di kolom atas.</div>
+    <h2>Ongkir J&T</h2>
+    <p class="mut">Status API ongkir: ${api?'<b style="color:var(--ok)">AKTIF</b> (RajaOngkir/Komerce)':'<b style="color:var(--warn)">belum aktif</b> → memakai tarif manual di samping'}</p>
+    <label>Kota/kecamatan asal</label><input id="oc" placeholder="Cari kecamatan asal (butuh API aktif)" value="${esc(s.origin_nama)}" ${api?'':'disabled'}><div id="osug"></div>
+    <input type="hidden" name="origin_id" value="${esc(s.origin_id)}"><input type="hidden" name="origin_nama" value="${esc(s.origin_nama)}">
+    <div class="mut">ID asal: <span id="oid">${esc(s.origin_id||'-')}</span></div>
+    <label>Tarif default per kg (kota lain, mode manual)</label><input name="tarif_default_per_kg" type="number" value="${esc(s.tarif_default_per_kg)}">
+    <h2>Logo toko (banner beranda)</h2>
+    <img src="${esc(s.logo_url||'logo.jpg')}" style="width:96px;height:96px;object-fit:cover;border-radius:12px;border:1px solid var(--bd)">
+    <label>Ganti logo (opsional, gambar kotak)</label><input type="file" id="fl" accept="image/*">
+    <input type="hidden" name="logo_url" value="${esc(s.logo_url||'')}">
+    <h2>Gambar latar banner beranda</h2>
+    <img src="${esc(s.banner_url||'banner-bg.jpg')}" style="width:100%;max-width:320px;height:110px;object-fit:cover;border-radius:8px;border:1px solid var(--bd)">
+    <label>Ganti gambar latar (opsional)</label><input type="file" id="fbg" accept="image/*">
+    <div class="mut">Gambar tampil di sisi kanan banner, menyatu dengan warna oranye. Bebas rasio (kotak/mendatar).</div>
+    <input type="hidden" name="banner_url" value="${esc(s.banner_url||'')}">
+    <h2>Pembayaran Transfer Bank</h2>
+    <div class="row"><div><label>Bank</label><input name="bank_nama" value="${esc(s.bank_nama||'')}" placeholder="mis. BCA / BRI / Mandiri / SeaBank"></div>
+      <div><label>Nomor rekening</label><input name="bank_norek" value="${esc(s.bank_norek||'')}" inputmode="numeric" pattern="[0-9 \-]*" placeholder="hanya angka" oninput="this.value=this.value.replace(/[^0-9]/g,'')"></div></div>
+    <label>Atas nama (opsional)</label><input name="bank_atas_nama" value="${esc(s.bank_atas_nama||'')}" placeholder="nama pemilik rekening">
+    <div class="mut">Jika Bank & Nomor rekening diisi, pembeli bisa memilih Transfer Bank saat checkout. Kosongkan untuk menonaktifkan.</div>
+    <h2>Pembayaran QRIS</h2>
+    <img src="${esc(qrisUrl())}" style="max-height:220px;border-radius:6px;border:1px solid var(--bd)">
+    <label>Ganti gambar QRIS (opsional)</label><input type="file" id="fq" accept="image/*">
+    <input type="hidden" name="qris_url" value="${esc(s.qris_url||'')}">
+    <div class="mut">Upload ulang hanya jika QRIS toko berganti. Gambar asli disimpan tanpa dikompres agar tetap bisa di-scan.</div>
+    <button class="btn blk" style="margin-top:14px">Simpan pengaturan</button></form></div>
+    <div class="card" id="tarifCard" style="align-self:start;${localStorage.getItem('tarifTampil')==='1'?'':'display:none'}"><h2 style="margin-top:0">Tarif manual J&T per kota</h2><p class="mut">Dipakai bila API ongkir belum aktif. Berat dibulatkan aturan J&T (toleransi 0,3 kg).</p>
+    <div class="tw"><table><tr><th>Kota</th><th>Per kg</th><th>Estimasi</th><th></th></tr>${tarif.map(t=>`<tr><td>${esc(t.kota)}</td><td>${rp(t.tarif_per_kg)}</td><td>${esc(t.etd)}</td><td><button class="btn g sm" onclick="hapus('tarif_manual',${t.id})">✕</button></td></tr>`).join('')}</table></div>
+    <form id="ft" class="row" style="margin-top:10px"><input name="kota" placeholder="Kota" required><input name="tarif_per_kg" type="number" placeholder="Tarif/kg" required><input name="etd" placeholder="2-3 hari"><button class="btn" style="flex:none">+</button></form></div></div>`;
+  pasangKoordinat();
+  $('#fs').onsubmit = async e => { e.preventDefault(); try { const fl = $('#fl').files[0]; if (fl) $('[name=logo_url]').value = await uploadFoto(fl, 'logo'); const fbg = $('#fbg').files[0]; if (fbg) $('[name=banner_url]').value = await uploadFoto(fbg, 'iklan'); const fq = $('#fq').files[0]; if (fq) { const path = `qris/${Date.now()}.${(fq.name.split('.').pop()||'jpg').toLowerCase()}`; ok(await sb.storage.from('foto').upload(path, fq, { upsert:true, contentType: fq.type })); $('[name=qris_url]').value = sb.storage.from('foto').getPublicUrl(path).data.publicUrl; } const rows = Object.entries(Object.fromEntries(new FormData(e.target))).map(([key,value])=>({key,value}));
+    ok(await sb.from('settings').upsert(rows)); await loadSettings(); toast('Pengaturan disimpan'); } catch(er){ fail(er); } };
+  $('#ft').onsubmit = async e => { e.preventDefault(); try { const fd = Object.fromEntries(new FormData(e.target)); ok(await sb.from('tarif_manual').upsert({ kota:fd.kota.trim(), tarif_per_kg:+fd.tarif_per_kg, etd:fd.etd||'2-3 hari' },{onConflict:'kota'})); viewAdminPengaturan(); } catch(er){ fail(er); } };
+  if (api) { let tm; $('#oc').oninput = e => { clearTimeout(tm); tm = setTimeout(async ()=>{
+    const q = e.target.value; if (q.length<3) return;
+    const { data } = await sb.functions.invoke('ongkir-jnt', { body:{ action:'search', q } }); const l = data?.data||[];
+    $('#osug').innerHTML = `<div class="sugg">${l.map(d=>`<div data-id="${esc(d.id)}" data-nm="${esc(d.label)}">${esc(d.label)}</div>`).join('')}</div>`;
+    $('#osug').querySelectorAll('[data-id]').forEach(el => el.onclick = () => { $('[name=origin_id]').value = el.dataset.id; $('[name=origin_nama]').value = el.dataset.nm; $('#oc').value = el.dataset.nm; $('#oid').textContent = el.dataset.id; $('#osug').innerHTML=''; });
+  }, 400); }; }
+}
+
+init();
+
+/* ================= PWA: service worker + tombol install ================= */
+if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js').catch(()=>{}));
+let PROMPT_INSTALL = null;
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault(); PROMPT_INSTALL = e;
+  if (localStorage.getItem('tolakInstall') || matchMedia('(display-mode: standalone)').matches) return;
+  const b = document.createElement('div'); b.id = 'instBar';
+  b.style.cssText = 'position:fixed;left:10px;right:10px;bottom:calc(66px + env(safe-area-inset-bottom));z-index:40;background:#fff;border-radius:10px;box-shadow:0 4px 18px #0003;padding:10px 12px;display:flex;gap:10px;align-items:center;max-width:520px;margin:auto';
+  b.innerHTML = `<img src="/icons/icon-192.png" style="width:40px;height:40px;border-radius:8px"><div style="flex:1;font-size:13px"><b>Install aplikasi ${esc(S.settings.nama_toko||'toko')}</b><div class="mut">Belanja lebih cepat dari layar utama HP</div></div><button class="btn sm" id="instYa">Install</button><button class="btn g sm" id="instNo">✕</button>`;
+  document.body.appendChild(b);
+  $('#instYa').onclick = async () => { b.remove(); PROMPT_INSTALL.prompt(); await PROMPT_INSTALL.userChoice; PROMPT_INSTALL = null; };
+  $('#instNo').onclick = () => { b.remove(); localStorage.setItem('tolakInstall','1'); };
+});
+window.addEventListener('appinstalled', () => { $('#instBar')?.remove(); toast('✓ Aplikasi terpasang di layar utama'); });
+</script>
+</body>
+</html>

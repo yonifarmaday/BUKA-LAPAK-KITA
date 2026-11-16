@@ -1,0 +1,31 @@
+# Warung Sembako Dini — Cloudflare Worker + D1 + KV
+# Ganti database_id dan id KV di bawah dengan milik akun Cloudflare Anda (lihat README.md).
+name = "warung-dini"
+main = "src/index.js"
+compatibility_date = "2025-09-01"
+
+# file web (index.html, gambar, ikon) dilayani langsung dari folder public/
+# /api/* dan /files/* diproses Worker dulu
+[assets]
+directory = "./public"
+binding = "ASSETS"
+not_found_handling = "single-page-application"
+run_worker_first = ["/api/*", "/files/*"]
+
+# database utama
+[[d1_databases]]
+binding = "DB"
+database_name = "dini-db"
+database_id = "GANTI-DENGAN-DATABASE-ID-D1"
+
+# penyimpanan foto produk / iklan / logo / QRIS
+[[kv_namespaces]]
+binding = "FILES"
+id = "GANTI-DENGAN-ID-KV"
+
+[observability]
+enabled = true
+
+# Secret (JANGAN ditulis di file ini, isi lewat dashboard / perintah):
+#   npx wrangler secret put JWT_SECRET       → teks acak min. 32 karakter (wajib)
+#   npx wrangler secret put RAJAONGKIR_KEY   → API key RajaOngkir Komerce (opsional, untuk ongkir otomatis J&T)
